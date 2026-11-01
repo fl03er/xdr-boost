@@ -13,9 +13,9 @@ XDR Boost는 평소의 **SDR** 화면을 디스플레이의 **HDR 밝기 영역(
 
 > 밝기만 바꿉니다. 새 패널의 다른 장점(색, 명암비, 시야각 등)을 대신해 주지는 않습니다.
 
-https://github.com/user-attachments/assets/045e1164-e6ed-4319-80f1-151b1b4fdc64
+https://github.com/user-attachments/assets/7e192ed7-0a43-49e5-8e55-1b1c20194747
 
-<sub>홍보 영상 (52초, 영어). 파일은 저장소에도 있습니다: [`promo/xdr-boost-promo-small.mp4`](promo/xdr-boost-promo-small.mp4)</sub>
+<sub>홍보 영상 (52초, 영어). 파일은 저장소에도 있습니다: [`promo/xdr-boost-promo.mp4`](promo/xdr-boost-promo.mp4)</sub>
 
 <p align="center"><img src="docs/panel-off.png" width="260" alt="꺼짐"> &nbsp; <img src="docs/panel-on.png" width="260" alt="켜짐"></p>
 
@@ -23,7 +23,7 @@ https://github.com/user-attachments/assets/045e1164-e6ed-4319-80f1-151b1b4fdc64
 
 원리를 34초로 풀어 본 영상입니다(영어, 자세한 설명은 아래에 있습니다):
 
-https://github.com/user-attachments/assets/5c02df97-60f9-469a-b94c-d5074c5938d0
+https://github.com/user-attachments/assets/1f5a90cb-58c6-4078-a89a-c8458783b967
 
 1. 클릭이 통과되는 투명 창이 **내장 디스플레이**를 덮고 EDR(값 > 1.0) 콘텐츠를 그립니다.
    macOS는 이를 HDR 콘텐츠로 보고 화면을 EDR 모드로 바꿉니다.

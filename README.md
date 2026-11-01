@@ -11,7 +11,7 @@ is brighter, for example outdoors.
 
 > It only changes brightness. It does not replace a new panel's other advantages (colour, contrast, viewing angle…).
 
-https://github.com/user-attachments/assets/045e1164-e6ed-4319-80f1-151b1b4fdc64
+https://github.com/user-attachments/assets/7e192ed7-0a43-49e5-8e55-1b1c20194747
 
 
 
@@ -19,7 +19,7 @@ https://github.com/user-attachments/assets/045e1164-e6ed-4319-80f1-151b1b4fdc64
 
 A 34-second walkthrough of the idea (the details are written out below):
 
-https://github.com/user-attachments/assets/5c02df97-60f9-469a-b94c-d5074c5938d0
+https://github.com/user-attachments/assets/1f5a90cb-58c6-4078-a89a-c8458783b967
 
 1. A transparent, click-through window covers the **built-in display** and draws EDR content (a value above 1.0).
    macOS sees HDR content and puts the panel into EDR mode.
