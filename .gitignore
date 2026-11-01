@@ -1,0 +1,5 @@
+XDRBoost.app/
+dist/
+.DS_Store
+xcuserdata/
+DerivedData/
