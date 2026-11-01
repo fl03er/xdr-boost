@@ -1,37 +1,65 @@
-# XDR Boost
+# XDR Boost — Thinking about a new MacBook for its display? Try this first.
 
-M1 Pro/Max 이후 맥북프로(Liquid Retina XDR)에서 **일반 화면(SDR)을 HDR 밝기 영역까지** 끌어올리는 메뉴바 앱
-SDR 최대 500nit에 묶여 있는 화면을, 야외처럼 밝은 곳에서 더 잘 보이게 합니다.
+**English** · [한국어](README.ko.md)
 
-## 원리
+<p align="center"><img src="docs/hero-on.jpg" width="720" alt="XDR Boost: a ghost lit by the light of a MacBook screen"></p>
 
-1. 화면 구석에 1포인트짜리 투명 창을 띄우고 EDR(값 > 1.0) 콘텐츠를 그립니다. macOS는 이를 HDR 콘텐츠로 보고 디스플레이를 EDR 모드로 전환합니다.
-2. EDR 모드에서 생긴 여유(headroom, M1 Pro 최대 약 3.2×)만큼 내장 디스플레이의 감마 테이블(`CGSetDisplayTransferByTable`)을 배율로 키웁니다.
-3. 적용 배율은 `min(설정 배율, 현재 여유)`이며 1초마다 다시 맞춥니다. 앱이 꺼지면 원래 ColorSync 설정으로 복원합니다.
+A new MacBook display can make you want to upgrade. Before you do: if you already own a MacBook Pro with a
+**Liquid Retina XDR** display (M1 Pro/Max and later), it has far more brightness than macOS lets ordinary apps use.
+XDR Boost is a menu bar app that pushes everyday **SDR** content into the display's **HDR headroom**, so the screen
+is brighter, for example outdoors.
 
-공개 API만 씁니다.
+> It only changes brightness. It does not replace a new panel's other advantages (colour, contrast, viewing angle…).
 
-## 빌드
+▶ **Promo video (52 s):** [`promo/xdr-boost-promo-small.mp4`](promo/xdr-boost-promo-small.mp4)
 
-Xcode(Command Line Tools 포함)가 필요합니다.
+<p align="center"><img src="docs/panel-off.png" width="260" alt="Off"> &nbsp; <img src="docs/panel-on.png" width="260" alt="On"></p>
+
+## How it works
+
+1. A transparent, click-through window covers the **built-in display** and draws EDR content (a value above 1.0).
+   macOS sees HDR content and puts the panel into EDR mode.
+2. EDR mode opens headroom (about 3.2× on the M1 Pro: SDR white is 500 nits, HDR peaks at 1,600).
+   The window multiplies everything beneath it (`compositingFilter = "multiply"`) by your factor.
+3. The applied factor is `min(your setting, live headroom)`, re-checked every 0.5 s. The overlay keeps redrawing
+   (5 fps), because macOS drops EDR content back to SDR brightness once it stops updating.
+4. Quit the app and the window disappears; brightness returns to normal.
+
+The factor is in linear light (2.0× ≈ 1,000 nits). The value actually drawn is `factor^(1/2.5)`, which keeps colours
+from clipping channel by channel.
+
+## Use it
+
+Click the ghost in the menu bar → flip the switch → drag the slider (1.0×–3.2×).
+Right-click the icon for a plain menu. The panel uses native **Liquid Glass** on macOS 26 and later
+(a blurred material on older versions) and the [Pretendard](https://github.com/orioncactus/pretendard) font when installed.
+
+## Safe by design
+
+- Built-in display only (`CGDisplayIsBuiltin`). External monitors are never touched.
+- Pauses automatically when the thermal state is serious (can be turned off).
+- Public APIs only: AppKit and Metal.
+- More brightness means more battery use and heat.
+
+## Build
+
+Needs Xcode (Command Line Tools included), macOS 13 or later.
 
 ```bash
-./build.sh            # XDRBoost.app 생성
-./build.sh install    # ~/Applications 에 설치 ("로그인 시 실행"에 필요)
-./build.sh release    # 유니버설 빌드를 dist/ 에 zip
+./build.sh            # builds XDRBoost.app
+./build.sh install    # copies it to ~/Applications (needed for "Launch at login")
+./build.sh release    # universal build zipped into dist/
 ```
 
-디버그 로그: `XDR_DEBUG=1 ./XDRBoost.app/Contents/MacOS/XDRBoost`
+Debug log: `XDR_DEBUG=1 ./XDRBoost.app/Contents/MacOS/XDRBoost`
 
-## 메뉴
+The promo video is made from the real app: `promo/make-assets.sh`, then `node promo/render.mjs`.
 
-- **XDR 부스트** (⌘B): 켜기/끄기
-- **밝기 배율**: 1.0× ~ 3.0× (시스템 여유를 넘으면 자동으로 제한)
-- **발열 시 자동 일시정지**: `thermalState`가 serious 이상이면 잠시 끔
-- **로그인 시 실행**
+## Credits and licenses
 
-## 주의
-
-- 밝기를 올리는 만큼 배터리 소모와 발열이 늘어납니다.
-- 내장 XDR 디스플레이에만 적용됩니다. 외부 모니터는 건드리지 않습니다.
-- 흰 영역은 배율이 클수록 클리핑(색 날아감)이 생길 수 있습니다.
+- The multiply-overlay idea comes from [BrightIntosh](https://github.com/niklasr22/BrightIntosh) (approach studied, code written from scratch).
+- The liquid-metal effect on the ghost and the text is a Metal port of the shader from
+  [paper-design/liquid-logo](https://github.com/paper-design/liquid-logo), used under the
+  [PolyForm Shield 1.0.0](https://polyformproject.org/licenses/shield/1.0.0) license.
+- The ghost is drawn in code, inspired by a reference illustration. Apple, MacBook and the Apple logo are
+  trademarks of Apple Inc.; this project is not affiliated with or endorsed by Apple.

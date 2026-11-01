@@ -4,6 +4,9 @@ import ServiceManagement
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let booster = Booster()
     private var statusItem: NSStatusItem!
+    private var iconTimer: Timer?
+    private var panel: NSPanel!
+    private let panelView = PanelView(frame: NSRect(x: 0, y: 0, width: PanelView.width, height: PanelView.height))
     private let menu = NSMenu()
     private let toggleItem = NSMenuItem(title: "XDR 부스트", action: #selector(toggle), keyEquivalent: "b")
     private let statusLine = NSMenuItem(title: "", action: nil, keyEquivalent: "")
@@ -29,15 +32,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(loginItem)
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "종료", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
-        statusItem.menu = menu
+
+        // Left click: the panel drops down under the icon. Right click: the plain menu.
+        statusItem.button?.target = self
+        statusItem.button?.action = #selector(statusClicked)
+        statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
+
+        panelView.booster = booster
+        panelView.loginEnabled = { SMAppService.mainApp.status == .enabled }
+        panelView.onToggleLogin = { [weak self] in self?.toggleLogin() }
+        panelView.onQuit = { NSApp.terminate(nil) }
+        panelView.setFrameSize(NSSize(width: PanelView.width, height: panelView.contentHeight))
+        panel = NSPanel(contentRect: panelView.frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+        panel.isOpaque = false
+        panel.backgroundColor = .clear
+        panel.hasShadow = true
+        panel.hidesOnDeactivate = false
+        panel.level = .statusBar
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        panel.appearance = NSAppearance(named: .darkAqua)  // the glass stays dark over any wallpaper, for the light text
+        panel.contentView = glassBackground(for: panelView)
+        // A click anywhere else closes the panel.
+        NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+            self?.hidePanel()
+        }
 
         booster.onChange = { [weak self] in self?.update() }
         update()
-
-        // The gamma table outlives a killed process otherwise; put the display back on Ctrl-C / kill.
-        for sig in [SIGINT, SIGTERM] {
-            signal(sig) { _ in CGDisplayRestoreColorSyncSettings(); exit(0) }
-        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -63,10 +84,60 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return item
     }
 
+    /// The panel's backdrop: Liquid Glass on macOS 26 and later, a blurred HUD material before that.
+    private func glassBackground(for content: NSView) -> NSView {
+        let radius = 26.0
+        if #available(macOS 26.0, *) {
+            let glass = NSGlassEffectView(frame: content.frame)
+            glass.cornerRadius = radius
+            glass.tintColor = NSColor(red: 0.05, green: 0.05, blue: 0.10, alpha: 0.55)
+            glass.contentView = content
+            return glass
+        }
+        let blur = NSVisualEffectView(frame: content.frame)
+        blur.material = .hudWindow
+        blur.blendingMode = .behindWindow
+        blur.state = .active
+        blur.wantsLayer = true
+        blur.layer?.cornerRadius = radius
+        blur.layer?.masksToBounds = true
+        content.autoresizingMask = [.width, .height]
+        blur.addSubview(content)
+        return blur
+    }
+
+    @objc private func statusClicked() {
+        let event = NSApp.currentEvent
+        if event?.type == .rightMouseUp || event?.modifierFlags.contains(.control) == true {
+            hidePanel()
+            statusItem.menu = menu
+            statusItem.button?.performClick(nil)
+            statusItem.menu = nil
+            return
+        }
+        if panel.isVisible { hidePanel() } else { showPanel() }
+    }
+
+    private func showPanel() {
+        guard let button = statusItem.button, let window = button.window else { return }
+        let icon = window.convertToScreen(button.convert(button.bounds, to: nil))
+        let visible = window.screen?.visibleFrame ?? NSScreen.main!.visibleFrame
+        let w = PanelView.width, h = panelView.contentHeight
+        let x = min(max(icon.midX - w / 2, visible.minX + 8), visible.maxX - w - 8)
+        panel.setFrame(NSRect(x: x, y: icon.minY - 6 - h, width: w, height: h), display: true)
+        panel.orderFrontRegardless()
+        panelView.setAnimating(true)
+    }
+
+    private func hidePanel() {
+        guard panel.isVisible else { return }
+        panel.orderOut(nil)
+        panelView.setAnimating(false)
+    }
+
     private func update() {
-        let on = booster.state == .on
-        statusItem.button?.image = NSImage(systemSymbolName: on ? "sun.max.fill" : "sun.max",
-                                           accessibilityDescription: "XDR Boost")
+        panelView.needsDisplay = true
+        animateIcon(booster.state == .on)
         toggleItem.state = booster.enabled ? .on : .off
         hotItem.state = booster.pauseWhenHot ? .on : .off
         loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
@@ -81,6 +152,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             statusLine.title = String(format: "적용 %.2f× · 여유 %.2f×%@", booster.appliedFactor, booster.headroom,
                                       capped ? " (시스템 한도)" : "")
         }
+    }
+
+    /// Off: the template ghost. On: the liquid ghost, rendered live; it fades in over the first second.
+    private func animateIcon(_ on: Bool) {
+        guard on else {
+            iconTimer?.invalidate()
+            iconTimer = nil
+            statusItem.button?.image = GhostArt.off
+            return
+        }
+        guard iconTimer == nil else { return }
+        let start = Date()
+        let draw = { [weak self] in
+            let t = Date().timeIntervalSince(start)
+            self?.statusItem.button?.image = GhostArt.lit(t: t, fade: min(1, t / 0.8))
+        }
+        draw()
+        // Each new image makes AppKit re-snapshot the status item for every display, so keep this slow.
+        iconTimer = Timer.scheduledTimer(withTimeInterval: 1 / 8, repeats: true) { _ in draw() }
+        RunLoop.main.add(iconTimer!, forMode: .common)  // keep animating while the menu is open
     }
 
     @objc private func toggle() { booster.enabled.toggle() }

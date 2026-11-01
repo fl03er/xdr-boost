@@ -3,3 +3,10 @@ dist/
 .DS_Store
 xcuserdata/
 DerivedData/
+*.app/
+promo/assets/
+promo/node_modules
+promo/render.log
+promo/still_*.png
+promo/promo.template.html
+promo/xdr-boost-promo.mp4

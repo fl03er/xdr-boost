@@ -1,13 +1,12 @@
 import AppKit
 
-/// Keeps the built-in XDR display in EDR mode and scales its gamma table into the EDR headroom,
-/// so ordinary (SDR) content is shown brighter than the normal 500-nit ceiling.
+/// Keeps the built-in XDR display in EDR mode and pushes ordinary (SDR) content into the EDR headroom,
+/// so it is shown brighter than the normal 500-nit ceiling: a full-screen EDR window multiplies everything under it
+/// (BrightIntosh's "alternate backend").
 final class Booster {
     enum State: Equatable { case off, on, pausedThermal, noDisplay }
 
-    private struct Table { var r, g, b: [CGGammaValue] }
-
-    /// The factor the user asked for; the applied one is capped by the live headroom.
+    /// The factor the user asked for, in linear light (2.0 = twice the nits); the applied one is capped by the live headroom.
     var factor: Double {
         didSet { defaults.set(factor, forKey: "factor"); apply(force: true) }
     }
@@ -24,21 +23,20 @@ final class Booster {
     private let defaults = UserDefaults.standard
     private var overlay: EDROverlay?
     private var display: CGDirectDisplayID?
-    private var base: Table?
     private var timer: Timer?
     private let debug = ProcessInfo.processInfo.environment["XDR_DEBUG"] != nil
 
-    static let maxFactor = 3.0
+    static let maxFactor = 3.2
 
     init() {
-        defaults.register(defaults: ["factor": 1.6, "enabled": false, "pauseWhenHot": true])
+        defaults.register(defaults: ["factor": 2.0, "enabled": false, "pauseWhenHot": true])
         factor = defaults.double(forKey: "factor")
         enabled = defaults.bool(forKey: "enabled")
         pauseWhenHot = defaults.bool(forKey: "pauseWhenHot")
 
         let nc = NotificationCenter.default
         nc.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.restart()
+            self?.screensChanged()
         }
         nc.addObserver(forName: ProcessInfo.thermalStateDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
             self?.refresh()
@@ -85,17 +83,25 @@ final class Booster {
         refresh()
     }
 
+    /// Screen parameters change for many reasons, EDR itself switching on among them; tearing down and rebuilding
+    /// every time makes the screen flash. Only rebuild when the built-in display itself came or went.
+    private func screensChanged() {
+        let id = builtinScreen().flatMap(displayID(of:))
+        if state == .on, id != nil, id == display {
+            if let screen = builtinScreen() { overlay?.move(to: screen) }
+            apply(force: false)
+        } else {
+            restart()
+        }
+    }
+
     private func start() {
-        if debug { FileHandle.standardError.write("[xdr] start\n".data(using: .utf8)!) }
         guard let screen = builtinScreen(), let id = displayID(of: screen) else { return }
-        // Start from the ColorSync profile's own table, never from one we already boosted.
-        CGDisplayRestoreColorSyncSettings()
         display = id
-        base = readTable(id)
         overlay = EDROverlay(screen: screen)
         overlay?.show()
         appliedFactor = 1.0
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in self?.apply(force: false) }
+        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in self?.apply(force: false) }
         apply(force: true)
     }
 
@@ -104,50 +110,32 @@ final class Booster {
         timer = nil
         overlay?.close()
         overlay = nil
-        base = nil
         display = nil
         appliedFactor = 1.0
-        CGDisplayRestoreColorSyncSettings()
     }
 
-    // MARK: - Gamma
+    // MARK: - Boost
 
-    /// Applies min(factor, headroom). Runs every second: headroom follows ambient light and the brightness
-    /// setting, and macOS resets the gamma table on its own now and then (display changes, ColorSync updates).
+    /// Applies min(factor, headroom). Runs on a timer: headroom follows ambient light and the brightness setting.
     private func apply(force: Bool) {
-        guard state == .on || force, let id = display, let base else { return }
+        guard state == .on || force, display != nil else { return }
         let headroom = self.headroom
-        overlay?.value = headroom
         let target = max(1.0, min(factor, headroom))
         let changed = abs(target - appliedFactor) > 0.01
-        if force || changed || tableWasReset(id, base: base) {
-            let f = CGGammaValue(target)
-            let r = base.r.map { $0 * f }, g = base.g.map { $0 * f }, b = base.b.map { $0 * f }
-            CGSetDisplayTransferByTable(id, UInt32(r.count), r, g, b)
-            appliedFactor = target
-            if changed { onChange?() }
-        }
+        overlay?.value = Self.encodedScale(target)
+        appliedFactor = target
+        if changed { onChange?() }
         if debug {
-            FileHandle.standardError.write(String(format: "[xdr] headroom %.2f / potential %.2f  factor %.2f  applied %.2f\n",
-                                                  headroom, potentialHeadroom, factor, appliedFactor).data(using: .utf8)!)
+            FileHandle.standardError.write(String(format: "[xdr] headroom %.2f / potential %.2f  factor %.2f  applied %.2f (scale %.3f)\n",
+                                                  headroom, potentialHeadroom, factor, appliedFactor,
+                                                  Self.encodedScale(appliedFactor)).data(using: .utf8)!)
         }
     }
 
-    private func tableWasReset(_ id: CGDirectDisplayID, base: Table) -> Bool {
-        guard let now = readTable(id), let last = now.r.last, let baseLast = base.r.last else { return false }
-        return abs(Double(last) - Double(baseLast) * appliedFactor) > 0.01
-    }
-
-    private func readTable(_ id: CGDirectDisplayID) -> Table? {
-        let capacity = Int(CGDisplayGammaTableCapacity(id))
-        guard capacity > 0 else { return nil }
-        var r = [CGGammaValue](repeating: 0, count: capacity)
-        var g = r, b = r
-        var count: UInt32 = 0
-        guard CGGetDisplayTransferByTable(id, UInt32(capacity), &r, &g, &b, &count) == .success, count > 0 else { return nil }
-        let n = Int(count)
-        return Table(r: Array(r[..<n]), g: Array(g[..<n]), b: Array(b[..<n]))
-    }
+    /// The overlay multiplies encoded values, not linear light. An exponent of 2.5
+    /// matches BrightIntosh's tuned ceiling for these panels (headroom 3.2 → 1.59). Scaling by the linear factor
+    /// instead overshoots the headroom, and then each channel clips on its own and hues shift.
+    private static func encodedScale(_ linear: Double) -> Double { pow(linear, 1 / 2.5) }
 
     // MARK: - Display
 
