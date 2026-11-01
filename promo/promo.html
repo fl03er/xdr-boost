@@ -1,0 +1,459 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>XDR Boost promo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+  body { font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
+  .mono { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #f5f5f7; }
+  .scene { position: absolute; inset: 0; opacity: 0; will-change: opacity, transform; overflow: hidden; }
+  .light { background: #f5f5f7; color: #1d1d1f; }
+  .dark { background: #050507; color: #f5f5f7; }
+  .abs { position: absolute; }
+  .h1 { position: absolute; left: 0; right: 0; text-align: center; font-weight: 700; letter-spacing: -0.025em; }
+  .sub { position: absolute; left: 0; right: 0; text-align: center; color: #6e6e73; font-size: 30px; font-weight: 400; letter-spacing: -0.01em; }
+  .dark .sub { color: #a1a1a6; }
+  .grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px); background-size: 64px 64px; -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 20%, transparent 75%); }
+  .lgrid { position: absolute; inset: 0; background-image: linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.04) 1px, transparent 1px); background-size: 64px 64px; -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 55%, #000 15%, transparent 80%); }
+  .glass { position: absolute; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.12); border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.14); backdrop-filter: blur(20px); }
+  .card { position: absolute; background: #fff; border-radius: 28px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.06); }
+  .tag { position: absolute; font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 22px; letter-spacing: .01em; white-space: nowrap; }
+  .chip { position: absolute; padding: 14px 28px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.16); font-size: 26px; font-weight: 500; color: #f5f5f7; white-space: nowrap; }
+  .grad { background: linear-gradient(90deg, #64d2ff, #5e5ce6, #bf5af2, #ff375f, #ff9f0a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  .menubar { position: absolute; height: 84px; border-radius: 22px; background: #1c1c1f; color: #f5f5f7; display: flex; align-items: center; padding: 0 34px; font-size: 30px; box-shadow: 0 20px 60px rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.08); }
+  .menubar .left { display: flex; gap: 38px; align-items: center; font-weight: 500; }
+  .menubar .left .app { font-weight: 700; }
+  .apple { width: 28px; height: 34px; }
+
+  .feat { position: absolute; top: 310px; width: 520px; height: 720px; padding: 44px 44px; }
+  .feat .n { width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #5e5ce6, #bf5af2); color: #fff; font-weight: 700; font-size: 26px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(130,100,255,.6); }
+  .feat .t { margin-top: 26px; font-size: 44px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.08; }
+  .feat .d { margin-top: 18px; font-size: 25px; color: #a1a1a6; line-height: 1.38; }
+  .code { position: absolute; left: 30px; right: 30px; bottom: 30px; padding: 20px 22px; border-radius: 18px; background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.08); font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 19px; line-height: 1.5; color: #c7c7cc; white-space: pre; }
+  .code b { color: #bf5af2; font-weight: 500; } .code i { color: #64d2ff; font-style: normal; } .code u { color: #ff9f0a; text-decoration: none; }
+  .ill { position: absolute; left: 44px; right: 44px; top: 410px; height: 130px; }
+
+  .eq { position: absolute; top: 330px; width: 380px; }
+  .scr { position: absolute; width: 380px; height: 240px; border-radius: 22px; overflow: hidden; border: 6px solid #1d1d1f; background: #1d1d1f; box-shadow: 0 20px 50px rgba(0,0,0,.18); }
+  .scr .wp { position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 15%, #a8c8ff, transparent 55%), radial-gradient(ellipse at 85% 30%, #ffb8d9, transparent 55%), linear-gradient(160deg, #5e5ce6, #bf5af2 55%, #ff9f0a); }
+  .scr .win { position: absolute; left: 36px; top: 50px; width: 190px; height: 130px; border-radius: 12px; background: rgba(255,255,255,.88); box-shadow: 0 8px 20px rgba(0,0,0,.25); }
+  .scr .win::before { content: ""; position: absolute; left: 12px; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: #ff5f57; box-shadow: 14px 0 #febc2e, 28px 0 #28c840; }
+  .scr .win::after { content: ""; position: absolute; left: 18px; right: 18px; top: 44px; height: 62px; background: repeating-linear-gradient(#d2d2d7 0 6px, transparent 6px 20px); border-radius: 3px; }
+  .op { position: absolute; font-size: 96px; font-weight: 300; color: #6e6e73; }
+  .telemetry { position: absolute; left: 260px; width: 1400px; top: 690px; height: 230px; padding: 30px 40px; border-radius: 28px; background: #0b0b0f; color: #c7c7cc; box-shadow: 0 30px 80px rgba(0,0,0,.25); }
+  .telemetry .row { display: flex; gap: 60px; font-size: 24px; color: #8e8e93; }
+  .telemetry .row b { color: #f5f5f7; font-weight: 500; display: block; font-size: 40px; margin-top: 6px; }
+  .telemetry canvas { position: absolute; left: 40px; right: 40px; bottom: 22px; width: 1320px; height: 70px; }
+
+  #cursor { position: absolute; left: 0; top: 0; width: 40px; height: 56px; z-index: 50; opacity: 0; filter: drop-shadow(0 3px 4px rgba(0,0,0,.3)); }
+  .step { position: absolute; left: 130px; display: flex; align-items: center; gap: 28px; }
+  .step .b { width: 64px; height: 64px; border-radius: 50%; border: 2px solid rgba(255,255,255,.3); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; flex: none; }
+  .step .x { font-size: 50px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
+  .step .y { font-size: 24px; color: #a1a1a6; margin-top: 6px; }
+  .safe { position: absolute; width: 760px; height: 250px; padding: 38px 44px; }
+  .safe .t { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; }
+  .safe .d { margin-top: 12px; font-size: 25px; color: #a1a1a6; line-height: 1.35; }
+  .safe .c { position: absolute; left: 44px; bottom: 28px; font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 21px; color: #64d2ff; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1. Title -->
+  <section class="scene dark" id="s1">
+    <div class="grid"></div>
+    <canvas id="p1" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
+    <canvas id="h1c" class="abs" width="1136" height="688" style="left:430px; top:34px; width:1060px; height:642px; border-radius:30px; box-shadow:0 0 120px rgba(150,110,255,.35);"></canvas>
+    <div class="tag" id="s1tag" style="left:0; right:0; top:690px; text-align:center; color:#64d2ff; font-size:24px; letter-spacing:.14em;">XDR BOOST</div>
+    <div class="h1" id="s1title" style="top:728px; font-size:86px; color:#fff;">Unlock the brightness you already own.</div>
+    <div class="sub" id="s1sub" style="top:850px; color:#c7c7cc; font-size:32px;">Push everyday SDR content into the HDR range of your built-in display.</div>
+    <div class="tag" id="s1hud" style="left:0; right:0; top:950px; text-align:center; color:#8e8e93; font-size:24px;">EDR HEADROOM <span id="s1h" style="color:#fff">1.00×</span> &nbsp;·&nbsp; PEAK <span id="s1n" style="color:#fff">500</span> NITS</div>
+  </section>
+
+  <!-- 2. SDR ceiling -->
+  <section class="scene light" id="s2">
+    <div class="lgrid"></div>
+    <div class="h1" id="s2title" style="top:110px; font-size:84px;">SDR stops at 500 nits.</div>
+    <div class="sub" id="s2sub" style="top:220px;">Your Liquid Retina XDR display can reach 1,600. Ordinary apps never ask for it.</div>
+    <div class="card" id="s2card" style="left:200px; top:340px; width:1520px; height:560px;">
+      <canvas id="c2" class="abs" width="1520" height="560" style="left:0; top:0; width:1520px; height:560px;"></canvas>
+    </div>
+  </section>
+
+  <!-- 3. The trick -->
+  <section class="scene dark" id="s3">
+    <div class="grid"></div>
+    <canvas id="p3" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
+    <div class="h1" id="s3title" style="top:100px; font-size:84px;">One invisible window.</div>
+    <div class="sub" id="s3sub" style="top:210px;">It convinces macOS that HDR content is on screen.</div>
+    <div class="glass feat" id="f1" style="left:110px;">
+      <div class="n">1</div><div class="t">Cover the screen</div>
+      <div class="d">A transparent, click-through window sits over the built-in display. Nothing you do is blocked.</div>
+      <div class="ill" id="i1"></div>
+      <div class="code"><b>window</b>.level =
+  <i>CGShieldingWindowLevel</i>()
+<b>window</b>.ignoresMouseEvents = <u>true</u></div>
+    </div>
+    <div class="glass feat" id="f2" style="left:700px;">
+      <div class="n">2</div><div class="t">Show a value above 1.0</div>
+      <div class="d">One pixel brighter than SDR white. macOS sees HDR and switches the panel into EDR mode.</div>
+      <div class="ill" id="i2"></div>
+      <div class="code"><b>layer</b>.wantsExtended
+  DynamicRangeContent = <u>true</u>
+<b>clear</b> = <i>rgba16Float</i>  <u>1.59</u> &gt; 1.0</div>
+    </div>
+    <div class="glass feat" id="f3" style="left:1290px;">
+      <div class="n">3</div><div class="t">Open the headroom</div>
+      <div class="d">EDR lifts the ceiling. Up to 3.2× on M1 Pro, depending on ambient light and battery.</div>
+      <div class="ill" id="i3"></div>
+      <div class="code"><b>screen</b>.maximumExtendedDynamicRange
+  ColorComponentValue  <u>1.0 → 3.2</u></div>
+    </div>
+  </section>
+
+  <!-- 4. Multiply -->
+  <section class="scene light" id="s4">
+    <div class="lgrid"></div>
+    <div class="h1" id="s4title" style="top:100px; font-size:84px;">Then multiply everything.</div>
+    <div class="sub" id="s4sub" style="top:210px;">The overlay scales every pixel on the display. Colors stay put.</div>
+    <div class="eq" style="left:150px;"><div class="scr" id="sA" style="left:0; top:0;"><div class="wp"></div><div class="win"></div></div>
+      <div class="tag" id="lA" style="left:0; top:268px; width:380px; text-align:center; color:#6e6e73; font-size:26px;">SDR · 500 NITS</div></div>
+    <div class="op" id="opx" style="left:560px; top:392px;">×</div>
+    <div class="abs" id="chip" style="left:680px; top:340px; width:220px; height:220px; border-radius:50%; background:#1d1d1f; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 20px 50px rgba(0,0,0,.25);">
+      <div class="mono" id="fv" style="font-size:78px; font-weight:600;">1.0</div><div class="tag" style="position:static; font-size:20px; color:#a1a1a6;">OVERLAY</div></div>
+    <div class="op" id="opeq" style="left:960px; top:392px;">=</div>
+    <div class="eq" style="left:1100px;"><div class="scr" id="sB" style="left:0; top:0;"><div class="wp"></div><div class="win"></div></div>
+      <div class="tag" id="lB" style="left:0; top:268px; width:380px; text-align:center; color:#1d1d1f; font-size:26px;">1,000 NITS</div></div>
+    <div class="telemetry mono" id="s4tel">
+      <div class="row">
+        <div>setting<b id="t1">2.00×</b></div><div>headroom<b id="t2">3.20×</b></div><div>applied = min()<b id="t3" class="grad">2.00×</b></div><div>encoded = applied^(1/2.5)<b id="t4">1.32</b></div><div>refresh<b>5 fps</b></div>
+      </div>
+      <canvas id="c4"></canvas>
+    </div>
+  </section>
+
+  <!-- 5. Use it -->
+  <section class="scene dark" id="s5">
+    <div class="grid"></div>
+    <div class="h1" id="s5title" style="top:250px; left:130px; right:auto; text-align:left; font-size:84px; width:900px;">Three clicks.<br>That’s it.</div>
+    <div class="step" id="st1" style="top:560px;"><div class="b">1</div><div><div class="x">Click the ghost</div><div class="y">It lives in your menu bar.</div></div></div>
+    <div class="step" id="st2" style="top:690px;"><div class="b">2</div><div><div class="x">Flip the switch</div><div class="y">The screen lights up. The icon starts to flow.</div></div></div>
+    <div class="step" id="st3" style="top:820px;"><div class="b">3</div><div><div class="x">Set your brightness</div><div class="y">1.0× to 3.2×. 2.0× ≈ 1,000 nits.</div></div></div>
+    <div class="menubar" id="s5bar" style="left:260px; top:56px; width:1400px;">
+      <div class="left"><svg class="apple" viewBox="0 0 170 200"><path fill="#f5f5f7" d="M150 152c-3 7-6 13-10 19-6 8-10 14-14 17-5 5-11 7-17 7-4 0-9-1-15-4-6-2-11-3-16-3s-11 1-16 3c-6 3-11 4-14 4-6 0-12-2-17-7-4-3-9-9-15-18-6-9-11-20-15-32-4-13-6-25-6-37 0-14 3-25 9-35 5-8 11-14 19-18 7-5 15-7 24-7 5 0 11 1 18 4s12 4 14 4c2 0 7-2 16-5 8-3 15-4 21-3 16 1 28 7 36 19-14 9-21 21-21 37 0 12 5 23 13 31 4 4 9 7 14 9-1 3-2 7-4 10zM119 7c0 10-4 19-11 28-9 10-19 16-30 15v-4c0-9 4-19 12-27 3-4 8-8 13-10 5-3 10-4 15-5 1 1 1 2 1 3z"/></svg><span class="app">Finder</span><span>File</span><span>Edit</span><span>View</span><span>Go</span></div>
+      <div style="margin-left:auto; display:flex; gap:40px; align-items:center;"><canvas id="ic" width="66" height="66" style="width:66px;height:66px;display:block;"></canvas><span style="font-size:30px; font-weight:500;">Mon 9:41 AM</span></div>
+    </div>
+    <canvas id="pn" class="abs" width="640" height="1152" style="left:1113px; top:150px; width:499px; height:898px; transform-origin: 74% 0%; border-radius:30px;"></canvas>
+    <svg class="abs" id="hud" width="1920" height="1080" style="left:0;top:0; pointer-events:none;">
+      <g stroke="#64d2ff" stroke-width="2" fill="none" opacity=".9">
+        <path id="hl1" d="M1612 580 H1700"/><path id="hl2" d="M1612 752 H1700"/><path id="hl3" d="M1612 998 H1700"/>
+      </g>
+    </svg>
+    <div class="tag" id="ht1" style="left:1710px; top:564px; color:#64d2ff; font-size:21px;">SWITCH</div>
+    <div class="tag" id="ht2" style="left:1710px; top:736px; color:#64d2ff; font-size:21px;">1.0–3.2×</div>
+    <div class="tag" id="ht3" style="left:1710px; top:982px; color:#64d2ff; font-size:21px;">LIVE<br>HEADROOM</div>
+    <svg id="cursor" viewBox="0 0 20 28"><path d="M1.5 1.5 V22.5 L6.6 17.7 L10.2 26 L13.6 24.5 L10.1 16.4 H17 Z" fill="#000" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+  </section>
+
+  <!-- 6. Careful -->
+  <section class="scene dark" id="s6">
+    <div class="grid"></div>
+    <canvas id="p6" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
+    <div class="h1" id="s6title" style="top:100px; font-size:84px;">Careful by design.</div>
+    <div class="sub" id="s6sub" style="top:210px;">Brighter doesn’t have to mean reckless.</div>
+    <div class="glass safe" id="a1" style="left:150px; top:340px;"><div class="t">Built-in display only</div><div class="d">Your Studio Display and other monitors are never touched.</div><div class="c">CGDisplayIsBuiltin(id)</div></div>
+    <div class="glass safe" id="a2" style="left:1010px; top:340px;"><div class="t">Backs off when hot</div><div class="d">Pauses automatically when your Mac reaches a serious thermal state.</div><div class="c">ProcessInfo.thermalState</div></div>
+    <div class="glass safe" id="a3" style="left:150px; top:620px;"><div class="t">Quits clean</div><div class="d">Close the window, and normal brightness is back instantly. Nothing is left changed.</div><div class="c">window.close()</div></div>
+    <div class="glass safe" id="a4" style="left:1010px; top:620px;"><div class="t">Public APIs only</div><div class="d">AppKit and Metal. No private frameworks, no kernel extensions, no hacks.</div><div class="c">import AppKit, MetalKit</div></div>
+  </section>
+
+  <!-- 7. End -->
+  <section class="scene dark" id="s7">
+    <div class="grid"></div>
+    <canvas id="p7" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
+    <canvas id="h7" class="abs" width="1136" height="688" style="left:430px; top:34px; width:1060px; height:642px; border-radius:30px; box-shadow:0 0 140px rgba(150,110,255,.4);"></canvas>
+    <div class="h1" id="s7title" style="top:716px; font-size:130px;" ><span class="grad">XDR Boost</span></div>
+    <div class="sub" id="s7sub" style="top:872px; color:#c7c7cc; font-size:38px;">Brighter, anywhere. In one click.</div>
+    <div class="tag" id="s7tag" style="left:0; right:0; top:960px; text-align:center; color:#8e8e93; font-size:22px;">MacBook Pro with Liquid Retina XDR  ·  macOS 13 or later</div>
+  </section>
+</div>
+
+<script type="module">
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eOut = x => 1 - Math.pow(1 - x, 3);
+const eInOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const lerp = (a, b, x) => a + (b - a) * x;
+const $ = id => document.getElementById(id);
+function rise(el, t, start, dur = 0.7, dist = 30, base = '') {
+  const x = eOut(seg(t, start, start + dur));
+  el.style.opacity = x;
+  el.style.transform = `${base} translateY(${(1 - x) * dist}px)`;
+}
+function clear(cv) { const c = cv.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); return c; }
+
+const SCENES = [
+  { id: 's1', a: 0.0, b: 6.4 },
+  { id: 's2', a: 6.0, b: 13.6 },
+  { id: 's3', a: 13.2, b: 22.0 },
+  { id: 's4', a: 21.6, b: 31.0 },
+  { id: 's5', a: 30.6, b: 41.0 },
+  { id: 's6', a: 40.6, b: 46.4 },
+  { id: 's7', a: 46.0, b: 52.0 },
+];
+const FADE = 0.4;
+export const DURATION = 52.0;
+window.DURATION = DURATION;
+
+// ---------- assets ----------
+const load = src => new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(im); im.src = src; });
+const N = 92, pad3 = i => String(i).padStart(3, '0');
+const heroOff = await load('assets/hero/off.jpg');
+const heroOn = await Promise.all(Array.from({ length: N }, (_, i) => load(`assets/hero/${pad3(i)}.jpg`)));
+const panelOff = await load('assets/panel/off.png');
+const panelOn = await Promise.all(Array.from({ length: N }, (_, i) => load(`assets/panel/${pad3(i)}.png`)));
+const iconOn = await Promise.all(Array.from({ length: 48 }, (_, i) => load(`assets/icon/icon${pad3(i)}.png`)));
+const iconOff = await load('assets/icon/icon_off.png');
+window.ready = Promise.resolve();
+
+// frame i (20 fps) of the lit loop: plays once, then ping-pongs over the steady part
+function onFrame(since) {
+  const i = since * 20;
+  if (i <= N - 1) return Math.floor(i);
+  const span = N - 1 - 30, pos = (i - (N - 1)) % (2 * span);
+  return Math.round(pos <= span ? N - 1 - pos : N - 1 - (2 * span - pos));
+}
+function drawHero(cv, since) {
+  const c = clear(cv);
+  c.drawImage(since < 0 ? heroOff : heroOn[onFrame(since)], 0, 0, cv.width, cv.height);
+}
+
+// drifting pastel sparks on dark scenes
+const PAL = ['#64d2ff', '#5e5ce6', '#bf5af2', '#ff375f', '#ff9f0a', '#30d158'];
+function sparks(cv, t, n = 70, strength = 1) {
+  const c = clear(cv);
+  for (let i = 0; i < n; i++) {
+    const s = Math.sin(i * 12.9898) * 43758.5453, r1 = s - Math.floor(s);
+    const s2 = Math.sin(i * 78.233) * 12345.678, r2 = s2 - Math.floor(s2);
+    const x = (r1 * 1920 + t * (6 + r2 * 14)) % 1920, y = ((r2 * 1080 - t * (10 + r1 * 18)) % 1080 + 1080) % 1080;
+    const a = (0.12 + 0.35 * Math.abs(Math.sin(t * (0.5 + r1) + i))) * strength;
+    c.fillStyle = PAL[i % PAL.length]; c.globalAlpha = a;
+    c.shadowColor = PAL[i % PAL.length]; c.shadowBlur = 14;
+    c.beginPath(); c.arc(x, y, 1.2 + r2 * 2.4, 0, 7); c.fill();
+  }
+  c.globalAlpha = 1; c.shadowBlur = 0;
+}
+
+// ---------- render ----------
+window.renderAt = function (t) {
+  for (const s of SCENES) {
+    const el = $(s.id);
+    const vis = t >= s.a && t <= s.b;
+    el.style.display = vis ? 'block' : 'none';
+    if (!vis) continue;
+    const fin = s.a === 0 ? 1 : eOut(seg(t, s.a, s.a + FADE));
+    const fout = s.b >= DURATION ? 1 : 1 - seg(t, s.b - FADE, s.b);
+    el.style.opacity = Math.min(fin, fout);
+    el.style.transform = `scale(${1.03 - 0.03 * fin})`;
+    el.style.zIndex = Math.round(s.a * 10);
+  }
+
+  // 1. title: the screen wakes up
+  if (t <= 6.4) {
+    const lt = t;
+    sparks($('p1'), lt, 60, seg(lt, 1.5, 3));
+    drawHero($('h1c'), lt - 1.6);
+    const lift = eOut(seg(lt, 1.6, 3.2));
+    $('h1c').style.opacity = eOut(seg(lt, 0.1, 0.9));
+    $('h1c').style.transform = `translateY(${(1 - eOut(seg(lt, 0, 1.2))) * 30}px) scale(${1 + 0.0 * lift})`;
+    $('h1c').style.boxShadow = `0 0 ${60 + 100 * lift}px rgba(150,110,255,${0.15 + 0.3 * lift})`;
+    rise($('s1tag'), lt, 0.5, 0.8, 10); rise($('s1title'), lt, 0.8, 0.9, 40); rise($('s1sub'), lt, 1.5, 0.9, 24); rise($('s1hud'), lt, 2.2, 0.8, 14);
+    const hd = lerp(1, 3.2, eInOut(seg(lt, 1.8, 3.4)));
+    $('s1h').textContent = hd.toFixed(2) + '×'; $('s1n').textContent = Math.round(500 * hd).toLocaleString('en-US');
+  }
+
+  // 2. SDR ceiling vs HDR headroom
+  if (t >= 6.0 && t <= 13.6) {
+    const lt = t - 6.0;
+    rise($('s2title'), lt, 0.2); rise($('s2sub'), lt, 0.45); rise($('s2card'), lt, 0.7, 0.8, 40);
+    const c = clear($('c2')), W = 1520, x0 = 90, x1 = 1300, px = n => x0 + (n / 1700) * (x1 - x0);
+    // ruler
+    c.font = '500 22px "SF Mono", Menlo, monospace'; c.textAlign = 'center';
+    for (let n = 0; n <= 1600; n += 100) {
+      const major = n % 500 === 0, a = eOut(seg(lt, 0.9 + n / 4000, 1.4 + n / 4000));
+      c.globalAlpha = a; c.strokeStyle = major ? '#1d1d1f' : '#c7c7cc'; c.lineWidth = major ? 3 : 2;
+      c.beginPath(); c.moveTo(px(n), 100); c.lineTo(px(n), major ? 128 : 116); c.stroke();
+      if (n === 0 || n === 500 || n === 1000 || n === 1600) { c.fillStyle = '#6e6e73'; c.fillText(String(n), px(n), 78); }
+    }
+    c.globalAlpha = 1; c.textAlign = 'left';
+    c.fillStyle = '#6e6e73'; c.font = '600 22px "SF Mono", Menlo, monospace'; c.fillText('nits (cd/m²)', 90, 44);
+    // SDR bar
+    const sdr = eOut(seg(lt, 1.4, 2.4));
+    c.fillStyle = '#ececf0'; roundRect(c, x0, 160, x1 - x0, 76, 22); c.fill();
+    c.fillStyle = '#1d1d1f'; roundRect(c, x0, 160, (px(500) - x0) * sdr, 76, 22); c.fill();
+    c.fillStyle = '#1d1d1f'; c.font = '700 28px Pretendard, -apple-system, sans-serif'; c.fillText('Everyday content (SDR)', x0, 276);
+    // HDR bar
+    const hdr = eOut(seg(lt, 2.8, 4.4));
+    c.fillStyle = '#ececf0'; roundRect(c, x0, 330, x1 - x0, 76, 22); c.fill();
+    c.fillStyle = '#86868b'; roundRect(c, x0, 330, (px(500) - x0) * clamp(hdr * 3.2), 76, 22); c.fill();
+    if (hdr > 0) {
+      const w = (px(1600) - px(500)) * hdr, g = c.createLinearGradient(px(500), 0, px(1600), 0);
+      g.addColorStop(0, '#5e5ce6'); g.addColorStop(.35, '#bf5af2'); g.addColorStop(.7, '#ff375f'); g.addColorStop(1, '#ff9f0a');
+      c.save(); c.shadowColor = 'rgba(191,90,242,.55)'; c.shadowBlur = 30; c.fillStyle = g;
+      roundRect(c, px(500) - 2, 330, w + 2, 76, 22); c.fill(); c.restore();
+      // sheen sweeping through the headroom
+      const sx = px(500) + ((lt * 380) % (w + 200)) - 100;
+      const sg = c.createLinearGradient(sx - 60, 0, sx + 60, 0);
+      sg.addColorStop(0, 'rgba(255,255,255,0)'); sg.addColorStop(.5, 'rgba(255,255,255,.45)'); sg.addColorStop(1, 'rgba(255,255,255,0)');
+      c.save(); roundRect(c, px(500) - 2, 330, w + 2, 76, 22); c.clip(); c.fillStyle = sg; c.fillRect(sx - 60, 330, 120, 76); c.restore();
+    }
+    c.fillStyle = '#1d1d1f'; c.font = '700 28px Pretendard, -apple-system, sans-serif'; c.fillText('HDR highlights', x0, 446);
+    // the 500-nit ceiling
+    const ca = eOut(seg(lt, 2.0, 2.8));
+    c.globalAlpha = ca; c.strokeStyle = '#ff375f'; c.lineWidth = 3; c.setLineDash([10, 8]);
+    c.beginPath(); c.moveTo(px(500), 140); c.lineTo(px(500), 430); c.stroke(); c.setLineDash([]);
+    c.fillStyle = '#ff375f'; c.font = '600 22px "SF Mono", Menlo, monospace'; c.fillText('SDR CEILING', px(500) + 14, 150); c.globalAlpha = 1;
+    // readouts
+    const n1 = Math.round(500 * sdr), n2 = Math.round(lerp(500, 1600, hdr));
+    c.fillStyle = '#1d1d1f'; c.font = '700 36px "SF Mono", Menlo, monospace';
+    c.globalAlpha = seg(lt, 1.6, 2.2); c.fillText(n1 + ' nits', px(500) + 24, 208); c.globalAlpha = seg(lt, 3.0, 3.6);
+    c.fillText(n2.toLocaleString('en-US') + ' nits', px(Math.max(500, n2)) + 24, 378); c.globalAlpha = 1;
+    // headroom badge
+    const bd = eOut(seg(lt, 4.8, 5.5));
+    c.globalAlpha = bd; c.fillStyle = '#1d1d1f'; roundRect(c, 90, 490 - (1 - bd) * 14, 560, 54, 27); c.fill();
+    c.fillStyle = '#fff'; c.font = '600 26px "SF Mono", Menlo, monospace'; c.fillText('HEADROOM  =  1600 / 500  =  3.2×', 118, 526 - (1 - bd) * 14); c.globalAlpha = 1;
+  }
+
+  // 3. the trick
+  if (t >= 13.2 && t <= 22.0) {
+    const lt = t - 13.2;
+    sparks($('p3'), lt, 40, 0.8);
+    rise($('s3title'), lt, 0.2); rise($('s3sub'), lt, 0.45);
+    ['f1', 'f2', 'f3'].forEach((id, i) => {
+      const st = 0.9 + i * 1.5, a = eOut(seg(lt, st, st + 0.8)), act = seg(lt, st + 0.2, st + 0.9);
+      const el = $(id);
+      el.style.opacity = a;
+      el.style.transform = `translateY(${(1 - a) * 50}px)`;
+      el.style.borderColor = `rgba(150,120,255,${0.12 + 0.55 * act * (1 - seg(lt, st + 1.5, st + 2.2) * 0.8)})`;
+      el.style.boxShadow = `0 20px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.14), 0 0 ${60 * act * (1 - seg(lt, st + 1.5, st + 2.3) * 0.8)}px rgba(130,100,255,.45)`;
+    });
+    // little illustrations
+    ill1($('i1'), lt - 0.9); ill2($('i2'), lt - 2.4); ill3($('i3'), lt - 3.9);
+  }
+
+  // 4. multiply
+  if (t >= 21.6 && t <= 31.0) {
+    const lt = t - 21.6;
+    rise($('s4title'), lt, 0.2); rise($('s4sub'), lt, 0.45);
+    for (const id of ['sA', 'opx', 'chip', 'opeq', 'sB', 'lA', 'lB']) rise($(id), lt, 0.7 + ['sA', 'opx', 'chip', 'opeq', 'sB', 'lA', 'lB'].indexOf(id) * 0.1, 0.7, 30);
+    rise($('s4tel'), lt, 1.4, 0.8, 40);
+    const f = lt < 2.0 ? 1.0 : lt < 4.4 ? lerp(1, 2, eInOut(seg(lt, 2.0, 4.4))) : lt < 7.4 ? lerp(2, 3.2, eInOut(seg(lt, 5.4, 7.4))) : 3.2;
+    const head = 3.2 - 0.3 * (0.5 + 0.5 * Math.sin(lt * 1.1)) * seg(lt, 3, 5);   // headroom wobbles a little with ambient light
+    const applied = Math.min(f, lt > 5.4 ? Math.min(head, 3.2) : 3.2);
+    $('fv').textContent = f.toFixed(1);
+    $('lB').textContent = Math.round(500 * applied).toLocaleString('en-US') + ' NITS';
+    $('sB').style.filter = `brightness(${1 + 0.55 * (applied - 1)}) saturate(${1 + 0.04 * (applied - 1)})`;
+    $('sB').style.boxShadow = `0 20px 50px rgba(0,0,0,.18), 0 0 ${80 * (applied - 1)}px rgba(255,255,255,${0.35 * (applied - 1) / 2.2}), 0 0 ${140 * (applied - 1)}px rgba(255,170,230,${0.25 * (applied - 1) / 2.2})`;
+    $('t1').textContent = f.toFixed(2) + '×'; $('t2').textContent = head.toFixed(2) + '×';
+    $('t3').textContent = applied.toFixed(2) + '×'; $('t4').textContent = Math.pow(applied, 1 / 2.5).toFixed(2);
+    // headroom/applied strip chart
+    const c = clear($('c4')), W = 1320, H = 70;
+    c.lineWidth = 3; c.lineJoin = 'round';
+    const series = (fn, col, glow) => { c.beginPath(); for (let x = 0; x <= W; x += 6) { const tt = lt - (W - x) / 120, y = H - 6 - (fn(tt) - 1) / 2.4 * (H - 14); x ? c.lineTo(x, y) : c.moveTo(x, y); } c.strokeStyle = col; c.shadowColor = glow; c.shadowBlur = 12; c.stroke(); c.shadowBlur = 0; };
+    const fAt = tt => tt < 2.0 ? 1.0 : tt < 4.4 ? lerp(1, 2, eInOut(seg(tt, 2.0, 4.4))) : tt < 7.4 ? lerp(2, 3.2, eInOut(seg(tt, 5.4, 7.4))) : 3.2;
+    const hAt = tt => 3.2 - 0.3 * (0.5 + 0.5 * Math.sin(tt * 1.1)) * seg(tt, 3, 5);
+    series(hAt, '#64d2ff', 'rgba(100,210,255,.8)');
+    series(tt => Math.min(fAt(tt), hAt(tt)), '#bf5af2', 'rgba(191,90,242,.9)');
+    // facts
+    ['facts'].forEach(() => {});
+  }
+
+  // 5. use it
+  if (t >= 30.6 && t <= 41.0) {
+    const lt = t - 30.6;
+    rise($('s5title'), lt, 0.2, 0.8, 30); rise($('s5bar'), lt, 0.5, 0.8, 40);
+    const on = lt >= 4.7, onSince = lt - 4.7;
+    const stepAct = lt < 4.4 ? 1 : lt < 7.2 ? 2 : 3;
+    [1, 2, 3].forEach(i => { const e = $('st' + i), a = eOut(seg(lt, 0.9 + i * 0.35, 1.5 + i * 0.35)); e.style.opacity = a * (i === stepAct ? 1 : 0.38); e.style.transform = `translateY(${(1 - a) * 30}px)`; e.querySelector('.b').style.background = i === stepAct ? 'linear-gradient(135deg,#5e5ce6,#bf5af2)' : 'transparent'; e.querySelector('.b').style.boxShadow = i === stepAct ? '0 0 30px rgba(130,100,255,.6)' : 'none'; });
+    // menu bar icon: plain until the switch is flipped, then the liquid ghost
+    const ic = clear($('ic')); ic.imageSmoothingQuality = 'high';
+    const img = on ? iconOn[Math.floor((lt - 4.7) * 8) % 48] : iconOff;
+    ic.drawImage(img, 0, 0, 66, 66);
+    // panel
+    const open = eOut(seg(lt, 2.6, 3.2));
+    const pn = $('pn');
+    pn.style.opacity = open; pn.style.transform = `scale(${0.88 + 0.12 * open}) translateY(${(1 - open) * -24}px)`;
+    const pc = clear(pn);
+    pc.drawImage(on ? panelOn[onFrame(onSince)] : panelOff, 0, 0, 640, 1152);
+    // callouts
+    const hudA = eOut(seg(lt, 5.4, 6.2));
+    for (const [id, d] of [['hl1', 0], ['hl2', 0.25], ['hl3', 0.5]]) { const a = eOut(seg(lt, 5.4 + d, 6.2 + d)); $(id).style.opacity = a; $(id).style.strokeDasharray = 88; $(id).style.strokeDashoffset = (1 - a) * 88; }
+    for (const [id, d] of [['ht1', 0], ['ht2', 0.25], ['ht3', 0.5]]) rise($(id), lt, 5.6 + d, 0.6, 8);
+    // cursor
+    const K = 499 / 320, PL = 1113, PT = 150, sw = [PL + 160 * K, PT + 276 * K], ic0 = [1363, 98];
+    const keys = [[0.9, 1500, 900], [2.0, ic0[0] + 6, ic0[1] + 6], [3.4, ic0[0] + 6, ic0[1] + 6], [4.3, sw[0], sw[1]], [5.6, sw[0], sw[1]], [6.6, 1200, 765], [7.6, 1500, 765], [8.6, 1280, 765], [9.4, 1500, 900]];
+    const [cx, cy] = cursorPath(keys, lt);
+    const press = (lt > 2.1 && lt < 2.5) || (lt > 4.5 && lt < 4.9) ? 1 : 0;
+    setCursor(cx, cy, seg(lt, 0.9, 1.2) * (1 - seg(lt, 9.2, 9.8)), press);
+  }
+
+  // 6. careful by design
+  if (t >= 40.6 && t <= 46.4) {
+    const lt = t - 40.6;
+    sparks($('p6'), lt, 40, 0.8);
+    rise($('s6title'), lt, 0.2); rise($('s6sub'), lt, 0.45);
+    ['a1', 'a2', 'a3', 'a4'].forEach((id, i) => rise($(id), lt, 0.9 + i * 0.35, 0.8, 40));
+  }
+
+  // 7. end
+  if (t >= 46.0) {
+    const lt = t - 46.0;
+    sparks($('p7'), lt + 3, 90, 1.2);
+    drawHero($('h7'), lt + 0.5 + 3);
+    $('h7').style.opacity = eOut(seg(lt, 0.2, 1.0));
+    rise($('s7title'), lt, 0.6, 0.9, 40); rise($('s7sub'), lt, 1.3, 0.9, 24); rise($('s7tag'), lt, 2.0, 0.8, 12);
+  }
+};
+
+function cursorPath(keys, lt) {
+  if (lt <= keys[0][0]) return keys[0].slice(1);
+  for (let i = 1; i < keys.length; i++) if (lt <= keys[i][0]) {
+    const [t0, x0, y0] = keys[i - 1], [t1, x1, y1] = keys[i], x = eInOut(seg(lt, t0, t1));
+    return [lerp(x0, x1, x), lerp(y0, y1, x)];
+  }
+  return keys[keys.length - 1].slice(1);
+}
+function setCursor(x, y, op, press = 0) {
+  const c = $('cursor');
+  c.style.opacity = op;
+  c.style.transform = `translate(${x - 3}px, ${y - 2}px) scale(${1 - 0.12 * press})`;
+}
+function roundRect(c, x, y, w, h, r) { if (w < 0) w = 0; r = Math.min(r, w / 2, h / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+
+// step illustrations
+function ill1(el, lt) {
+  const a = eOut(seg(lt, 0.5, 1.2)), pulse = 0.5 + 0.5 * Math.sin(lt * 4);
+  el.innerHTML = `<div style="position:absolute;left:0;top:10px;width:100%;height:96px;border-radius:14px;border:2px dashed rgba(100,210,255,${0.35 + 0.5 * a});background:rgba(100,210,255,${0.05 + 0.06 * pulse});box-shadow:0 0 ${24 * a}px rgba(100,210,255,.25) inset"></div>
+  <div class="mono" style="position:absolute;left:18px;top:36px;font-size:20px;color:#64d2ff;opacity:${a}">alpha 0 · click-through</div>
+  <div class="mono" style="position:absolute;left:18px;top:66px;font-size:20px;color:#8e8e93;opacity:${a}">1512 × 982 pt</div>`;
+}
+function ill2(el, lt) {
+  const a = eOut(seg(lt, 0.3, 1.0)), g = eOut(seg(lt, 0.9, 1.8));
+  el.innerHTML = `<div style="position:absolute;left:0;top:44px;width:100%;height:34px;border-radius:17px;background:#2a2a2e"></div>
+  <div style="position:absolute;left:0;top:44px;width:${60 * a}%;height:34px;border-radius:17px 0 0 17px;background:#d2d2d7"></div>
+  <div style="position:absolute;left:60%;top:44px;width:${40 * g}%;height:34px;border-radius:0 17px 17px 0;background:linear-gradient(90deg,#5e5ce6,#bf5af2,#ff375f,#ff9f0a);box-shadow:0 0 ${34 * g}px rgba(191,90,242,.8)"></div>
+  <div style="position:absolute;left:60%;top:30px;height:62px;border-left:2px solid #fff;opacity:${a}"></div>
+  <div class="mono" style="position:absolute;left:60%;top:96px;margin-left:-22px;font-size:20px;color:#fff;opacity:${a}">1.0</div>
+  <div class="mono" style="position:absolute;left:78%;top:2px;font-size:20px;color:#ff9f0a;opacity:${g}">&gt; 1.0</div>`;
+}
+function ill3(el, lt) {
+  const hs = [0.31, 0.62, 1.0], vals = ['500', '1,000', '1,600'];
+  el.innerHTML = hs.map((h, i) => { const a = eOut(seg(lt, 0.3 + i * 0.4, 1.0 + i * 0.4)); return `<div style="position:absolute;left:${i * 33}%;bottom:18px;width:28%;height:${88 * h * a}px;border-radius:10px 10px 4px 4px;background:${i ? 'linear-gradient(180deg,#ff9f0a,#bf5af2)' : '#d2d2d7'};box-shadow:${i ? '0 0 24px rgba(191,90,242,.6)' : 'none'}"></div><div class="mono" style="position:absolute;left:${i * 33}%;width:28%;bottom:-2px;text-align:center;font-size:18px;color:#a1a1a6;opacity:${a}">${vals[i]}</div>`; }).join('');
+}
+</script>
+</body>
+</html>
