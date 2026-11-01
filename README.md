@@ -13,9 +13,7 @@ is brighter, for example outdoors.
 
 https://github.com/user-attachments/assets/045e1164-e6ed-4319-80f1-151b1b4fdc64
 
-<sub>Promo video (52 s). The file is also in the repo: [`promo/xdr-boost-promo-small.mp4`](promo/xdr-boost-promo-small.mp4)</sub>
 
-<p align="center"><img src="docs/panel-off.png" width="260" alt="Off"> &nbsp; <img src="docs/panel-on.png" width="260" alt="On"></p>
 
 ## How it works
 
