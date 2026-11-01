@@ -2,7 +2,7 @@
 
 [English](README.md) · **한국어**
 
-<p align="center"><img src="docs/hero-on.jpg" width="720" alt="XDR Boost: 맥북 화면 빛을 받는 유령"></p>
+<p align="center"><img src="docs/hero.gif" width="720" alt="XDR Boost"></p>
 
 > 새 맥북의 디스플레이를 보고 구매를 고민하는 바로 그 순간, 이 깃허브를 한 번 써보세요.
 
@@ -13,7 +13,7 @@ XDR Boost는 평소의 **SDR** 화면을 디스플레이의 **HDR 밝기 영역(
 
 > 밝기만 바꿉니다. 새 패널의 다른 장점(색, 명암비, 시야각 등)을 대신해 주지는 않습니다.
 
-▶ **홍보 영상 (52초, 영어):** [`promo/xdr-boost-promo-small.mp4`](promo/xdr-boost-promo-small.mp4)
+<p align="center"><a href="https://github.com/fl03er/xdr-boost/blob/main/promo/xdr-boost-promo-small.mp4"><img src="docs/video-thumb.jpg" width="520" alt="홍보 영상 보기 (52초)"></a><br><sub>▶ 클릭하면 52초 홍보 영상(영어)을 볼 수 있습니다</sub></p>
 
 <p align="center"><img src="docs/panel-off.png" width="260" alt="꺼짐"> &nbsp; <img src="docs/panel-on.png" width="260" alt="켜짐"></p>
 

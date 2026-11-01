@@ -2,7 +2,7 @@
 
 **English** · [한국어](README.ko.md)
 
-<p align="center"><img src="docs/hero-on.jpg" width="720" alt="XDR Boost: a ghost lit by the light of a MacBook screen"></p>
+<p align="center"><img src="docs/hero.gif" width="720" alt="XDR Boost"></p>
 
 A new MacBook display can make you want to upgrade. Before you do: if you already own a MacBook Pro with a
 **Liquid Retina XDR** display (M1 Pro/Max and later), it has far more brightness than macOS lets ordinary apps use.
@@ -11,7 +11,7 @@ is brighter, for example outdoors.
 
 > It only changes brightness. It does not replace a new panel's other advantages (colour, contrast, viewing angle…).
 
-▶ **Promo video (52 s):** [`promo/xdr-boost-promo-small.mp4`](promo/xdr-boost-promo-small.mp4)
+<p align="center"><a href="https://github.com/fl03er/xdr-boost/blob/main/promo/xdr-boost-promo-small.mp4"><img src="docs/video-thumb.jpg" width="520" alt="Watch the promo video (52 s)"></a><br><sub>▶ Click to watch the 52-second promo video</sub></p>
 
 <p align="center"><img src="docs/panel-off.png" width="260" alt="Off"> &nbsp; <img src="docs/panel-on.png" width="260" alt="On"></p>
 
