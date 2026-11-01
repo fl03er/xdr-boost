@@ -13,7 +13,9 @@ XDR Boost는 평소의 **SDR** 화면을 디스플레이의 **HDR 밝기 영역(
 
 > 밝기만 바꿉니다. 새 패널의 다른 장점(색, 명암비, 시야각 등)을 대신해 주지는 않습니다.
 
-<p align="center"><a href="https://github.com/fl03er/xdr-boost/blob/main/promo/xdr-boost-promo-small.mp4"><img src="docs/video-thumb.jpg" width="520" alt="홍보 영상 보기 (52초)"></a><br><sub>▶ 클릭하면 52초 홍보 영상(영어)을 볼 수 있습니다</sub></p>
+https://github.com/user-attachments/assets/045e1164-e6ed-4319-80f1-151b1b4fdc64
+
+<sub>홍보 영상 (52초, 영어). 파일은 저장소에도 있습니다: [`promo/xdr-boost-promo-small.mp4`](promo/xdr-boost-promo-small.mp4)</sub>
 
 <p align="center"><img src="docs/panel-off.png" width="260" alt="꺼짐"> &nbsp; <img src="docs/panel-on.png" width="260" alt="켜짐"></p>
 

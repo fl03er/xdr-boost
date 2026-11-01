@@ -11,7 +11,9 @@ is brighter, for example outdoors.
 
 > It only changes brightness. It does not replace a new panel's other advantages (colour, contrast, viewing angle…).
 
-<p align="center"><a href="https://github.com/fl03er/xdr-boost/blob/main/promo/xdr-boost-promo-small.mp4"><img src="docs/video-thumb.jpg" width="520" alt="Watch the promo video (52 s)"></a><br><sub>▶ Click to watch the 52-second promo video</sub></p>
+https://github.com/user-attachments/assets/045e1164-e6ed-4319-80f1-151b1b4fdc64
+
+<sub>Promo video (52 s). The file is also in the repo: [`promo/xdr-boost-promo-small.mp4`](promo/xdr-boost-promo-small.mp4)</sub>
 
 <p align="center"><img src="docs/panel-off.png" width="260" alt="Off"> &nbsp; <img src="docs/panel-on.png" width="260" alt="On"></p>
 
