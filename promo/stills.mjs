@@ -11,7 +11,7 @@ const page = await browser.newPage();
 await page.setViewport({ width: 1920, height: 1080 });
 page.on('pageerror', e => console.error('page error:', e.message));
 page.on('console', m => { if (m.type() === 'error') console.error('console:', m.text()); });
-await page.goto(`http://localhost:${server.address().port}/promo.html?render`, { waitUntil: 'networkidle0' });
+await page.goto(`http://localhost:${server.address().port}/${process.env.PAGE || 'promo.html'}?render`, { waitUntil: 'networkidle0' });
 await page.evaluate(() => window.ready);
 const out = process.env.OUT || '.';
 for (const t of process.argv.slice(2)) { await page.evaluate(t => window.renderAt(t), Number(t)); await page.screenshot({ path: `${out}/still_${t}.png` }); }

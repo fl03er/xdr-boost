@@ -7,6 +7,7 @@ import puppeteer from 'puppeteer-core';
 
 const ROOT = new URL('.', import.meta.url).pathname;
 const FPS = Number(process.env.FPS || 30), DPR = Number(process.env.DPR || 1), BITRATE = process.env.BITRATE || '18M';
+const PAGE = process.env.PAGE || 'promo.html';
 const [OUT = 'xdr-boost-promo.mp4', from = '0', to] = process.argv.slice(2);  // optional seconds range for test renders
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.png': 'image/png', '.jpg': 'image/jpeg', '.mjs': 'text/javascript' };
 const server = http.createServer(async (req, res) => {
@@ -19,7 +20,7 @@ const browser = await puppeteer.launch({ executablePath: '/Applications/Google C
 const page = await browser.newPage();
 await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: DPR });
 page.on('pageerror', e => console.error('page error:', e.message));
-await page.goto(`http://localhost:${port}/promo.html?render&dpr=${DPR}`, { waitUntil: 'networkidle0' });
+await page.goto(`http://localhost:${port}/${PAGE}?render&dpr=${DPR}`, { waitUntil: 'networkidle0' });
 await page.evaluate(() => window.ready);
 const duration = await page.evaluate(() => window.DURATION);
 const t0 = Number(from), t1 = to ? Number(to) : duration;

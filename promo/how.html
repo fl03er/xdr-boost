@@ -1,0 +1,351 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>XDR Boost: how it works</title>
+<style>
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+  body { font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
+  .mono { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #f5f5f7; }
+  .scene { position: absolute; inset: 0; opacity: 0; will-change: opacity, transform; overflow: hidden; }
+  .light { background: #f5f5f7; color: #1d1d1f; }
+  .dark { background: #050507; color: #f5f5f7; }
+  .abs { position: absolute; }
+  .h1 { position: absolute; left: 0; right: 0; text-align: center; font-weight: 700; letter-spacing: -0.025em; }
+  .sub { position: absolute; left: 0; right: 0; text-align: center; color: #6e6e73; font-size: 30px; font-weight: 400; letter-spacing: -0.01em; }
+  .dark .sub { color: #a1a1a6; }
+  .grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px); background-size: 64px 64px; -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 20%, transparent 75%); }
+  .lgrid { position: absolute; inset: 0; background-image: linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.04) 1px, transparent 1px); background-size: 64px 64px; -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 55%, #000 15%, transparent 80%); }
+  .glass { position: absolute; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.12); border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.14); backdrop-filter: blur(20px); }
+  .card { position: absolute; background: #fff; border-radius: 28px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.06); }
+  .tag { position: absolute; font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 22px; letter-spacing: .01em; white-space: nowrap; }
+  .chip { position: absolute; padding: 14px 28px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.16); font-size: 26px; font-weight: 500; color: #f5f5f7; white-space: nowrap; }
+  .grad { background: linear-gradient(90deg, #64d2ff, #5e5ce6, #bf5af2, #ff375f, #ff9f0a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  .menubar { position: absolute; height: 84px; border-radius: 22px; background: #1c1c1f; color: #f5f5f7; display: flex; align-items: center; padding: 0 34px; font-size: 30px; box-shadow: 0 20px 60px rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.08); }
+  .menubar .left { display: flex; gap: 38px; align-items: center; font-weight: 500; }
+  .menubar .left .app { font-weight: 700; }
+  .apple { width: 28px; height: 34px; }
+
+  .feat { position: absolute; top: 310px; width: 520px; height: 720px; padding: 44px 44px; }
+  .feat .n { width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #5e5ce6, #bf5af2); color: #fff; font-weight: 700; font-size: 26px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(130,100,255,.6); }
+  .feat .t { margin-top: 26px; font-size: 44px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.08; }
+  .feat .d { margin-top: 18px; font-size: 25px; color: #a1a1a6; line-height: 1.38; }
+  .code { position: absolute; left: 30px; right: 30px; bottom: 30px; padding: 20px 22px; border-radius: 18px; background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.08); font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 19px; line-height: 1.5; color: #c7c7cc; white-space: pre; }
+  .code b { color: #bf5af2; font-weight: 500; } .code i { color: #64d2ff; font-style: normal; } .code u { color: #ff9f0a; text-decoration: none; }
+  .ill { position: absolute; left: 44px; right: 44px; top: 410px; height: 130px; }
+
+  .eq { position: absolute; top: 330px; width: 380px; }
+  .scr { position: absolute; width: 380px; height: 240px; border-radius: 22px; overflow: hidden; border: 6px solid #1d1d1f; background: #1d1d1f; box-shadow: 0 20px 50px rgba(0,0,0,.18); }
+  .scr .wp { position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 15%, #a8c8ff, transparent 55%), radial-gradient(ellipse at 85% 30%, #ffb8d9, transparent 55%), linear-gradient(160deg, #5e5ce6, #bf5af2 55%, #ff9f0a); }
+  .scr .win { position: absolute; left: 36px; top: 50px; width: 190px; height: 130px; border-radius: 12px; background: rgba(255,255,255,.88); box-shadow: 0 8px 20px rgba(0,0,0,.25); }
+  .scr .win::before { content: ""; position: absolute; left: 12px; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: #ff5f57; box-shadow: 14px 0 #febc2e, 28px 0 #28c840; }
+  .scr .win::after { content: ""; position: absolute; left: 18px; right: 18px; top: 44px; height: 62px; background: repeating-linear-gradient(#d2d2d7 0 6px, transparent 6px 20px); border-radius: 3px; }
+  .op { position: absolute; font-size: 96px; font-weight: 300; color: #6e6e73; }
+  .telemetry { position: absolute; left: 260px; width: 1400px; top: 690px; height: 230px; padding: 30px 40px; border-radius: 28px; background: #0b0b0f; color: #c7c7cc; box-shadow: 0 30px 80px rgba(0,0,0,.25); }
+  .telemetry .row { display: flex; gap: 60px; font-size: 24px; color: #8e8e93; }
+  .telemetry .row b { color: #f5f5f7; font-weight: 500; display: block; font-size: 40px; margin-top: 6px; }
+  .telemetry canvas { position: absolute; left: 40px; right: 40px; bottom: 22px; width: 1320px; height: 70px; }
+
+  #cursor { position: absolute; left: 0; top: 0; width: 40px; height: 56px; z-index: 50; opacity: 0; filter: drop-shadow(0 3px 4px rgba(0,0,0,.3)); }
+  .step { position: absolute; left: 130px; display: flex; align-items: center; gap: 28px; }
+  .step .b { width: 64px; height: 64px; border-radius: 50%; border: 2px solid rgba(255,255,255,.3); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; flex: none; }
+  .step .x { font-size: 50px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
+  .step .y { font-size: 24px; color: #a1a1a6; margin-top: 6px; }
+  .safe { position: absolute; width: 760px; height: 250px; padding: 38px 44px; }
+  .safe .t { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; }
+  .safe .d { margin-top: 12px; font-size: 25px; color: #a1a1a6; line-height: 1.35; }
+  .safe .c { position: absolute; left: 44px; bottom: 28px; font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 21px; color: #64d2ff; }
+
+  .lay { position: absolute; width: 700px; height: 440px; border-radius: 22px; transform-style: preserve-3d; }
+  .stack { position: absolute; left: 120px; top: 330px; width: 900px; height: 640px; perspective: 1600px; }
+  .row3 { position: absolute; left: 1090px; width: 700px; }
+  .big { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
+  .pcard { position: absolute; left: 1090px; width: 700px; height: 112px; border-radius: 24px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.06); display: flex; align-items: center; padding: 0 36px; gap: 36px; }
+  .pcard .a { font-size: 44px; font-weight: 700; width: 150px; }
+  .pcard .b { display: none; }
+  .pcard .c { font-size: 52px; font-weight: 600; width: 160px; }
+  .pcard .d { font-size: 24px; color: #6e6e73; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1. title -->
+  <section class="scene dark" id="s1">
+    <div class="grid"></div>
+    <canvas id="p1" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
+    <div class="tag" id="s1tag" style="left:0; right:0; top:300px; text-align:center; color:#64d2ff; font-size:26px; letter-spacing:.14em;">XDR BOOST · UNDER THE HOOD</div>
+    <div class="h1" id="s1title" style="top:360px; font-size:140px; color:#fff;">How it works.</div>
+    <div class="sub" id="s1sub" style="top:540px; color:#c7c7cc; font-size:36px;">A hidden headroom, an invisible window, and a little math.</div>
+    <canvas id="pipe" class="abs" width="1400" height="200" style="left:260px; top:720px; width:1400px; height:200px;"></canvas>
+  </section>
+
+  <!-- 2. pixels stop at 1.0 -->
+  <section class="scene light" id="s2">
+    <div class="lgrid"></div>
+    <div class="h1" id="s2title" style="top:110px; font-size:84px;">Pixels stop at 1.0.</div>
+    <div class="sub" id="s2sub" style="top:220px;">Above it is headroom that ordinary apps never use.</div>
+    <div class="card" id="s2card" style="left:200px; top:340px; width:1520px; height:560px;"><canvas id="c2" class="abs" width="1520" height="560" style="left:0;top:0"></canvas></div>
+  </section>
+
+  <!-- 3. wake the HDR mode -->
+  <section class="scene dark" id="s3">
+    <div class="grid"></div>
+    <canvas id="p3" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
+    <div class="h1" id="s3title" style="top:100px; font-size:84px;">Wake the HDR mode.</div>
+    <div class="sub" id="s3sub" style="top:210px;">An invisible window shows one value above 1.0.</div>
+    <div class="stack" id="stack3">
+      <div class="lay" id="lyD" style="left:100px; top:110px; background: radial-gradient(ellipse at 20% 15%, #a8c8ff, transparent 55%), radial-gradient(ellipse at 85% 30%, #ffb8d9, transparent 55%), linear-gradient(160deg, #5e5ce6, #bf5af2 55%, #ff9f0a); border: 4px solid #2a2a2e;"></div>
+      <div class="lay" id="lyO" style="left:100px; top:110px; background: linear-gradient(160deg, rgba(100,210,255,.16), rgba(191,90,242,.22)); border: 3px dashed rgba(150,130,255,.95); box-shadow: 0 0 60px rgba(130,100,255,.5);"></div>
+    </div>
+    <div class="tag" id="tO" style="left:150px; top:360px; color:#bf5af2;">OVERLAY · rgba16Float · value 1.59</div>
+    <div class="tag" id="tD" style="left:150px; top:960px; color:#8e8e93;">DESKTOP · SDR · every value ≤ 1.0</div>
+    <div class="glass" id="code3" style="left:1090px; top:340px; width:700px; height:300px; padding:34px 38px; border-radius:26px;">
+      <pre class="mono" id="code3t" style="font-size:23px; line-height:1.75; color:#c7c7cc; white-space:pre;"></pre>
+    </div>
+    <div class="glass" id="gauge3" style="left:1090px; top:680px; width:700px; height:240px; padding:30px 38px; border-radius:26px;">
+      <div class="tag" style="position:static; color:#8e8e93; font-size:17px;">screen.maximumExtendedDynamicRangeColorComponentValue</div>
+      <div class="big" id="g3v" style="font-size:96px; font-weight:600; margin-top:8px;">1.00</div>
+      <div class="abs" style="left:38px; right:38px; bottom:34px; height:14px; border-radius:7px; background:#26262b;"><div id="g3b" style="height:14px; width:30%; border-radius:7px; background:linear-gradient(90deg,#5e5ce6,#bf5af2,#ff375f,#ff9f0a); box-shadow:0 0 24px rgba(191,90,242,.7);"></div></div>
+    </div>
+  </section>
+
+  <!-- 4. multiply in the right space -->
+  <section class="scene light" id="s4">
+    <div class="lgrid"></div>
+    <div class="h1" id="s4title" style="top:100px; font-size:84px;">Multiply, in the right space.</div>
+    <div class="sub" id="s4sub" style="top:210px;">Pixels are gamma-encoded, so the gain is a power curve.</div>
+    <div class="card" id="s4card" style="left:110px; top:320px; width:940px; height:640px;"><canvas id="c4" class="abs" width="940" height="640" style="left:0;top:0"></canvas></div>
+    <div class="pcard" id="r1" style="top:320px;"><div class="a big">1.0×</div><div class="b">gain</div><div class="c big">1.00</div><div class="d">overlay value · 500 nits</div></div>
+    <div class="pcard" id="r2" style="top:456px;"><div class="a big">2.0×</div><div class="b">gain</div><div class="c big">1.32</div><div class="d">overlay value · 1,000 nits</div></div>
+    <div class="pcard" id="r3" style="top:592px;"><div class="a big">3.2×</div><div class="b">gain</div><div class="c big">1.59</div><div class="d">overlay value · 1,600 nits</div></div>
+    <div class="telemetry mono" id="f4" style="left:1090px; top:740px; width:700px; height:220px; padding:30px 36px; font-size:25px; line-height:1.7;">
+      <span style="color:#8e8e93">light  = (k · v)<sup>2.5</sup> = k<sup>2.5</sup> · v<sup>2.5</sup></span><br>
+      <span style="color:#8e8e93">want   k<sup>2.5</sup> = L</span><br>
+      <span class="grad" style="font-size:40px; font-weight:600;">k = L<sup style="font-size:.6em">1/2.5</sup></span>
+    </div>
+  </section>
+
+  <!-- 5. a loop, not a switch -->
+  <section class="scene dark" id="s5">
+    <div class="grid"></div>
+    <canvas id="p5" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
+    <div class="h1" id="s5title" style="top:100px; font-size:84px;">A loop, not a switch.</div>
+    <div class="sub" id="s5sub" style="top:210px;">The headroom moves, so the boost moves with it.</div>
+    <div class="glass" id="gl5a" style="left:110px; top:330px; width:840px; height:640px;"><canvas id="c5a" class="abs" width="840" height="640" style="left:0;top:0"></canvas></div>
+    <div class="glass" id="gl5b" style="left:990px; top:330px; width:820px; height:640px;"><canvas id="c5b" class="abs" width="820" height="640" style="left:0;top:0"></canvas></div>
+  </section>
+
+  <!-- 6. end -->
+  <section class="scene dark" id="s6">
+    <div class="grid"></div>
+    <canvas id="p6" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
+    <canvas id="h6" class="abs" width="1136" height="688" style="left:530px; top:60px; width:860px; height:521px; border-radius:26px; box-shadow:0 0 120px rgba(150,110,255,.4);"></canvas>
+    <div class="h1" id="s6title" style="top:640px; font-size:120px;"><span class="grad">XDR Boost</span></div>
+    <div class="sub" id="s6sub" style="top:790px; color:#c7c7cc; font-size:36px;">Your display already had the brightness. Now you can use it.</div>
+    <div class="tag" id="s6tag" style="left:0; right:0; top:900px; text-align:center; color:#64d2ff; font-size:26px;">github.com/fl03er/xdr-boost</div>
+  </section>
+</div>
+
+<script type="module">
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eOut = x => 1 - Math.pow(1 - x, 3);
+const eInOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const lerp = (a, b, x) => a + (b - a) * x;
+const $ = id => document.getElementById(id);
+function rise(el, t, start, dur = 0.7, dist = 30, base = '') { const x = eOut(seg(t, start, start + dur)); el.style.opacity = x; el.style.transform = `${base} translateY(${(1 - x) * dist}px)`; }
+function clear(cv) { const c = cv.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); return c; }
+function roundRect(c, x, y, w, h, r) { if (w < 0) w = 0; r = Math.min(r, w / 2, h / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+const MONO = '"SF Mono", Menlo, monospace', SANS = 'Pretendard, -apple-system, sans-serif';
+
+const SCENES = [
+  { id: 's1', a: 0.0, b: 4.8 }, { id: 's2', a: 4.4, b: 11.2 }, { id: 's3', a: 10.8, b: 17.6 },
+  { id: 's4', a: 17.2, b: 24.4 }, { id: 's5', a: 24.0, b: 30.0 }, { id: 's6', a: 29.6, b: 34.4 },
+];
+const FADE = 0.4;
+export const DURATION = 34.4;
+window.DURATION = DURATION;
+
+let resolveReady; window.ready = new Promise(r => resolveReady = r);
+const load = src => new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(im); im.src = src; });
+const N = 92, pad3 = i => String(i).padStart(3, '0');
+const heroOn = await Promise.all(Array.from({ length: N }, (_, i) => load(`assets/hero/${pad3(i)}.jpg`)));
+function onFrame(since) { const i = since * 20; if (i <= N - 1) return Math.floor(i); const span = N - 1 - 30, pos = (i - (N - 1)) % (2 * span); return Math.round(pos <= span ? N - 1 - pos : N - 1 - (2 * span - pos)); }
+
+const PAL = ['#64d2ff', '#5e5ce6', '#bf5af2', '#ff375f', '#ff9f0a', '#30d158'];
+function sparks(cv, t, n = 70, strength = 1) {
+  const c = clear(cv);
+  for (let i = 0; i < n; i++) {
+    const s = Math.sin(i * 12.9898) * 43758.5453, r1 = s - Math.floor(s), s2 = Math.sin(i * 78.233) * 12345.678, r2 = s2 - Math.floor(s2);
+    const x = (r1 * 1920 + t * (6 + r2 * 14)) % 1920, y = ((r2 * 1080 - t * (10 + r1 * 18)) % 1080 + 1080) % 1080;
+    c.fillStyle = PAL[i % PAL.length]; c.globalAlpha = (0.12 + 0.35 * Math.abs(Math.sin(t * (0.5 + r1) + i))) * strength;
+    c.shadowColor = PAL[i % PAL.length]; c.shadowBlur = 14; c.beginPath(); c.arc(x, y, 1.2 + r2 * 2.4, 0, 7); c.fill();
+  }
+  c.globalAlpha = 1; c.shadowBlur = 0;
+}
+const GRAD = (c, x0, x1) => { const g = c.createLinearGradient(x0, 0, x1, 0); g.addColorStop(0, '#5e5ce6'); g.addColorStop(.35, '#bf5af2'); g.addColorStop(.7, '#ff375f'); g.addColorStop(1, '#ff9f0a'); return g; };
+
+window.renderAt = function (t) {
+  for (const s of SCENES) {
+    const el = $(s.id), vis = t >= s.a && t <= s.b;
+    el.style.display = vis ? 'block' : 'none';
+    if (!vis) continue;
+    const fin = s.a === 0 ? 1 : eOut(seg(t, s.a, s.a + FADE)), fout = s.b >= DURATION ? 1 : 1 - seg(t, s.b - FADE, s.b);
+    el.style.opacity = Math.min(fin, fout); el.style.transform = `scale(${1.03 - 0.03 * fin})`; el.style.zIndex = Math.round(s.a * 10);
+  }
+
+  // 1. title with the four-step pipeline
+  if (t <= 4.8) {
+    const lt = t;
+    sparks($('p1'), lt, 60, seg(lt, 0.5, 1.5));
+    rise($('s1tag'), lt, 0.3, 0.8, 10); rise($('s1title'), lt, 0.5, 0.9, 40); rise($('s1sub'), lt, 1.2, 0.9, 24);
+    const c = clear($('pipe')), names = ['HEADROOM', 'EDR MODE', 'MULTIPLY', 'CONTROL LOOP'], W = 1400;
+    const xs = names.map((_, i) => 130 + i * ((W - 260) / 3));
+    const prog = seg(lt, 1.6, 3.6) * 3;
+    c.lineWidth = 4;
+    for (let i = 0; i < 3; i++) {
+      const f = clamp(prog - i); c.strokeStyle = 'rgba(255,255,255,.14)'; c.beginPath(); c.moveTo(xs[i] + 70, 70); c.lineTo(xs[i + 1] - 70, 70); c.stroke();
+      c.strokeStyle = GRAD(c, xs[i], xs[i + 1]); c.shadowColor = 'rgba(191,90,242,.9)'; c.shadowBlur = 16;
+      c.beginPath(); c.moveTo(xs[i] + 70, 70); c.lineTo(lerp(xs[i] + 70, xs[i + 1] - 70, f), 70); c.stroke(); c.shadowBlur = 0;
+    }
+    names.forEach((n, i) => {
+      const a = eOut(seg(lt, 1.3 + i * 0.3, 1.9 + i * 0.3)), on = clamp(prog - i + 1);
+      c.globalAlpha = a; c.fillStyle = 'rgba(255,255,255,.06)'; c.strokeStyle = `rgba(160,130,255,${0.25 + 0.6 * on})`; c.lineWidth = 2;
+      c.shadowColor = 'rgba(130,100,255,.8)'; c.shadowBlur = 30 * on; roundRect(c, xs[i] - 70, 20, 140, 100, 26); c.fill(); c.stroke(); c.shadowBlur = 0;
+      c.fillStyle = '#fff'; c.font = `700 40px ${SANS}`; c.textAlign = 'center'; c.fillText('0' + (i + 1), xs[i], 82);
+      c.fillStyle = '#a1a1a6'; c.font = `500 20px ${MONO}`; c.fillText(n, xs[i], 160); c.globalAlpha = 1;
+    });
+  }
+
+  // 2. pixels stop at 1.0
+  if (t >= 4.4 && t <= 11.2) {
+    const lt = t - 4.4;
+    rise($('s2title'), lt, 0.2); rise($('s2sub'), lt, 0.45); rise($('s2card'), lt, 0.7, 0.8, 40);
+    const c = clear($('c2')), x0 = 90, px = v => x0 + v / 3.4 * 1340;
+    c.textAlign = 'center';
+    for (let i = 0; i <= 34; i += 2) {
+      const v = i / 10, major = i % 10 === 0, a = eOut(seg(lt, 0.9 + v * 0.1, 1.4 + v * 0.1));
+      c.globalAlpha = a; c.strokeStyle = major ? '#1d1d1f' : '#c7c7cc'; c.lineWidth = major ? 3 : 2;
+      c.beginPath(); c.moveTo(px(v), 96); c.lineTo(px(v), major ? 128 : 114); c.stroke();
+      if (major) { c.fillStyle = '#1d1d1f'; c.font = `600 28px ${MONO}`; c.fillText(v.toFixed(1), px(v), 76); c.fillStyle = '#6e6e73'; c.font = `500 20px ${MONO}`; c.fillText(Math.round(v * 500).toLocaleString('en-US'), px(v), 160); }
+    }
+    c.globalAlpha = 1; c.textAlign = 'left'; c.fillStyle = '#6e6e73'; c.font = `600 20px ${MONO}`; c.fillText('pixel value', 90, 40); c.fillText('nits  (value × 500)', 90, 194);
+    const sdr = eOut(seg(lt, 1.3, 2.2)), edr = eOut(seg(lt, 2.6, 4.2));
+    c.fillStyle = '#ececf0'; roundRect(c, x0, 200, 1340, 90, 24); c.fill();
+    c.fillStyle = '#1d1d1f'; roundRect(c, x0, 200, (px(1) - x0) * sdr, 90, 24); c.fill();
+    if (edr > 0) {
+      c.save(); c.shadowColor = 'rgba(191,90,242,.55)'; c.shadowBlur = 30; c.fillStyle = GRAD(c, px(1), px(3.2)); roundRect(c, px(1) - 4, 200, (px(3.2) - px(1)) * edr + 4, 90, 24); c.fill(); c.restore();
+      const w = (px(3.2) - px(1)) * edr, sx = px(1) + ((lt * 340) % (w + 200)) - 100, sg = c.createLinearGradient(sx - 60, 0, sx + 60, 0);
+      sg.addColorStop(0, 'rgba(255,255,255,0)'); sg.addColorStop(.5, 'rgba(255,255,255,.45)'); sg.addColorStop(1, 'rgba(255,255,255,0)');
+      c.save(); roundRect(c, px(1) - 4, 200, w + 4, 90, 24); c.clip(); c.fillStyle = sg; c.fillRect(sx - 60, 200, 120, 90); c.restore();
+    }
+    c.fillStyle = '#fff'; c.font = `700 30px ${SANS}`; c.globalAlpha = sdr; c.fillText('SDR', x0 + 30, 257); c.globalAlpha = edr; c.fillText('EDR headroom', px(1) + 40, 257); c.globalAlpha = 1;
+    const ca = eOut(seg(lt, 1.8, 2.6)); c.globalAlpha = ca; c.strokeStyle = '#ff375f'; c.lineWidth = 3; c.setLineDash([10, 8]); c.beginPath(); c.moveTo(px(1), 176); c.lineTo(px(1), 330); c.stroke(); c.setLineDash([]);
+    c.fillStyle = '#ff375f'; c.font = `600 22px ${MONO}`; c.fillText('SDR WHITE = 1.0', px(1) + 14, 326); c.globalAlpha = 1;
+    const br = eOut(seg(lt, 4.0, 4.8)); c.globalAlpha = br; c.strokeStyle = '#86868b'; c.lineWidth = 3;
+    c.beginPath(); c.moveTo(px(1), 360); c.lineTo(px(1), 372); c.lineTo(px(3.2), 372); c.lineTo(px(3.2), 360); c.stroke();
+    c.fillStyle = '#6e6e73'; c.font = `500 26px ${SANS}`; c.textAlign = 'center'; c.fillText('No ordinary app draws here', (px(1) + px(3.2)) / 2, 412); c.textAlign = 'left'; c.globalAlpha = 1;
+    const fb = eOut(seg(lt, 4.8, 5.5)); c.globalAlpha = fb; c.fillStyle = '#1d1d1f'; roundRect(c, 90, 460 - (1 - fb) * 14, 760, 60, 30); c.fill();
+    c.fillStyle = '#fff'; c.font = `600 26px ${MONO}`; c.fillText('headroom = peak ÷ SDR white = 1,600 ÷ 500 = 3.2', 118, 499 - (1 - fb) * 14); c.globalAlpha = 1;
+  }
+
+  // 3. wake the HDR mode
+  if (t >= 10.8 && t <= 17.6) {
+    const lt = t - 10.8;
+    sparks($('p3'), lt, 40, 0.8);
+    rise($('s3title'), lt, 0.2); rise($('s3sub'), lt, 0.45);
+    const appear = eOut(seg(lt, 0.7, 1.5)), drop = eInOut(seg(lt, 1.8, 3.2)), z = lerp(300, 36, drop), lit = eInOut(seg(lt, 3.0, 4.4));
+    const base = 'rotateX(58deg) rotateZ(-30deg)';
+    $('lyD').style.opacity = appear; $('lyD').style.transform = `${base} translateZ(0px)`;
+    $('lyD').style.filter = `brightness(${1 + 0.7 * lit})`; $('lyD').style.boxShadow = `0 0 ${120 * lit}px rgba(255,190,240,${0.55 * lit})`;
+    $('lyO').style.opacity = appear; $('lyO').style.transform = `${base} translateZ(${z}px)`;
+    rise($('tO'), lt, 1.0, 0.6, 10); rise($('tD'), lt, 1.0, 0.6, 10);
+    $('tO').style.top = (330 + (1 - drop) * -70) + 'px';
+    // code, typed line by line
+    const lines = ['layer.wantsExtendedDynamicRangeContent = true', 'layer.pixelFormat = .rgba16Float', 'clear = (1.59, 1.59, 1.59)   // above 1.0', 'layer.compositingFilter = "multiply"'];
+    const hl = ['wantsExtendedDynamicRangeContent', 'rgba16Float', '1.59', '"multiply"'];
+    rise($('code3'), lt, 0.9, 0.7, 30);
+    $('code3t').innerHTML = lines.map((l, i) => { const n = Math.floor(clamp((lt - (1.6 + i * 0.7)) / 0.6) * l.length); const s = l.slice(0, n).replace(/&/g, '&amp;').replace(/</g, '&lt;'); return `<span style="opacity:${n ? 1 : 0}">${s.replace(hl[i], `<span style="color:${['#64d2ff', '#ff9f0a', '#ff9f0a', '#bf5af2'][i]}">${hl[i]}</span>`)}</span>`; }).join('\n');
+    rise($('gauge3'), lt, 1.2, 0.7, 30);
+    const g = lt < 3.6 ? 1.0 : lerp(1.0, 3.2, eInOut(seg(lt, 3.6, 5.0)));
+    $('g3v').textContent = g.toFixed(2); $('g3b').style.width = (g / 3.2 * 100) + '%'; $('g3v').style.color = g > 1.05 ? '#fff' : '#8e8e93';
+  }
+
+  // 4. multiply, in the right space
+  if (t >= 17.2 && t <= 24.4) {
+    const lt = t - 17.2;
+    rise($('s4title'), lt, 0.2); rise($('s4sub'), lt, 0.45); rise($('s4card'), lt, 0.7, 0.8, 40);
+    ['r1', 'r2', 'r3'].forEach((id, i) => { rise($(id), lt, 1.2 + i * 0.25, 0.7, 30); });
+    rise($('f4'), lt, 3.4, 0.8, 30);
+    const L = lt < 1.6 ? 1 : lt < 3.4 ? lerp(1, 2, eInOut(seg(lt, 1.6, 3.4))) : lt < 4.0 ? 2 : lerp(2, 3.2, eInOut(seg(lt, 4.0, 5.6)));
+    const c = clear($('c4')), ox = 100, oy = 560, X = l => ox + (l - 1) / 2.2 * 760, Y = k => oy - (k - 1) / 2.2 * 430;
+    c.strokeStyle = '#ececf0'; c.lineWidth = 2; c.font = `500 20px ${MONO}`; c.fillStyle = '#6e6e73';
+    for (const v of [1, 1.5, 2, 2.5, 3]) { c.beginPath(); c.moveTo(ox, Y(v)); c.lineTo(ox + 790, Y(v)); c.stroke(); c.textAlign = 'right'; c.fillText(v.toFixed(1), ox - 12, Y(v) + 7); c.beginPath(); c.moveTo(X(v), oy); c.lineTo(X(v), oy - 440); c.stroke(); c.textAlign = 'center'; c.fillText(v.toFixed(1) + '×', X(v), oy + 34); }
+    c.textAlign = 'left'; c.fillStyle = '#6e6e73'; c.font = `600 21px ${MONO}`; c.fillText('overlay value k', 30, 56); c.fillText('gain L (light)', X(2.4), oy + 68);
+    const draw = eOut(seg(lt, 0.8, 2.0));
+    const curve = (fn, upto) => { c.beginPath(); for (let l = 1; l <= upto + 1e-6; l += 0.02) { const x = X(l), y = Y(fn(l)); l === 1 ? c.moveTo(x, y) : c.lineTo(x, y); } };
+    c.setLineDash([12, 10]); c.strokeStyle = '#ff375f'; c.lineWidth = 4; curve(l => l, lerp(1, 3.2, draw)); c.stroke(); c.setLineDash([]);
+    c.save(); c.strokeStyle = GRAD(c, X(1), X(3.2)); c.lineWidth = 7; c.shadowColor = 'rgba(191,90,242,.6)'; c.shadowBlur = 18; curve(l => Math.pow(l, 1 / 2.5), lerp(1, 3.2, draw)); c.stroke(); c.restore();
+    c.globalAlpha = eOut(seg(lt, 2.0, 2.8)); c.fillStyle = '#ff375f'; c.font = `600 21px ${SANS}`; c.fillText('k = L  overshoots, channels clip, hues shift', X(1.15), Y(2.75));
+    c.fillStyle = '#5e5ce6'; c.fillText('k = L^(1/2.5)', X(2.15), Y(Math.pow(2.15, 0.4)) + 56); c.globalAlpha = 1;
+    // the moving point
+    const k = Math.pow(L, 1 / 2.5), px = X(L), py = Y(k), a = eOut(seg(lt, 1.4, 1.9));
+    c.globalAlpha = a; c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 2; c.setLineDash([6, 6]); c.beginPath(); c.moveTo(px, oy); c.lineTo(px, py); c.lineTo(ox, py); c.stroke(); c.setLineDash([]);
+    c.fillStyle = '#1d1d1f'; c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 14; c.beginPath(); c.arc(px, py, 14, 0, 7); c.fill(); c.shadowBlur = 0;
+    c.fillStyle = '#1d1d1f'; roundRect(c, px - 110, py - 78, 220, 48, 24); c.fill(); c.fillStyle = '#fff'; c.font = `600 22px ${MONO}`; c.textAlign = 'center'; c.fillText(`L ${L.toFixed(2)} → k ${k.toFixed(2)}`, px, py - 46); c.textAlign = 'left'; c.globalAlpha = 1;
+    ['r1', 'r2', 'r3'].forEach((id, i) => { const on = Math.abs(L - [1, 2, 3.2][i]) < 0.08; $(id).style.outline = on ? '3px solid #5e5ce6' : '3px solid transparent'; $(id).style.transform += ` scale(${on ? 1.03 : 1})`; });
+  }
+
+  // 5. a loop, not a switch
+  if (t >= 24.0 && t <= 30.0) {
+    const lt = t - 24.0;
+    sparks($('p5'), lt + 5, 40, 0.8);
+    rise($('s5title'), lt, 0.2); rise($('s5sub'), lt, 0.45); rise($('gl5a'), lt, 0.7, 0.8, 40); rise($('gl5b'), lt, 0.9, 0.8, 40);
+    // loop diagram
+    let c = clear($('c5a')); const cx = 420, cy = 330, R = 200;
+    const nodes = [['SENSE', 'read headroom'], ['CLAMP', 'min(setting, headroom)'], ['APPLY', 'set overlay value'], ['WAIT', '0.5 s']];
+    const pos = nodes.map((_, i) => { const a = -Math.PI / 2 + i * Math.PI / 2; return [cx + R * 1.15 * Math.cos(a), cy + R * Math.sin(a)]; });
+    const cyc = (lt * 0.5) % 1, head = cyc * 4;
+    c.lineWidth = 4; c.strokeStyle = 'rgba(255,255,255,.14)'; c.beginPath(); c.ellipse(cx, cy, R * 1.15, R, 0, 0, Math.PI * 2); c.stroke();
+    const ang = -Math.PI / 2 + head * Math.PI / 2, dx = cx + R * 1.15 * Math.cos(ang), dy = cy + R * Math.sin(ang);
+    c.save(); c.shadowColor = '#bf5af2'; c.shadowBlur = 30; c.fillStyle = '#fff'; c.beginPath(); c.arc(dx, dy, 11, 0, 7); c.fill(); c.restore();
+    nodes.forEach(([n, d], i) => {
+      const on = Math.max(0, 1 - Math.abs(((head - i + 2 + 4) % 4) - 2) * 1.2), [x, y] = pos[i];
+      c.fillStyle = 'rgba(20,20,26,.95)'; c.strokeStyle = `rgba(160,130,255,${0.3 + 0.7 * on})`; c.lineWidth = 2; c.shadowColor = 'rgba(130,100,255,.9)'; c.shadowBlur = 36 * on;
+      roundRect(c, x - 135, y - 46, 270, 92, 26); c.fill(); c.stroke(); c.shadowBlur = 0;
+      c.textAlign = 'center'; c.fillStyle = '#fff'; c.font = `700 30px ${SANS}`; c.fillText(n, x, y - 4); c.fillStyle = '#a1a1a6'; c.font = `500 17px ${MONO}`; c.fillText(d, x, y + 28);
+    });
+    c.fillStyle = '#8e8e93'; c.font = `500 22px ${MONO}`; c.fillText('every 0.5 s', cx, cy + 8); c.textAlign = 'left';
+    // keep-alive chart
+    c = clear($('c5b')); const W = 820, left = 50, right = W - 50, T0 = lt, win = 6;
+    const phase = tt => tt < 1.6 ? 'draw' : tt < 3.4 ? 'stop' : 'draw';
+    const bright = tt => { if (tt < 0) return 1; let v = 1; if (tt >= 1.6 && tt < 3.4) v = tt < 2.2 ? 1 : lerp(1, 0.3, eOut(seg(tt, 2.2, 2.9))); else if (tt >= 3.4) v = lerp(0.3, 1, eInOut(seg(tt, 3.4, 3.9))); return v; };
+    c.fillStyle = '#8e8e93'; c.font = `600 21px ${MONO}`; c.fillText('brightness', left, 56); c.fillText('frames sent', left, 400);
+    const X = tt => left + (tt / 6) * (right - left);
+    c.strokeStyle = 'rgba(255,255,255,.1)'; c.lineWidth = 2; c.beginPath(); c.moveTo(left, 80); c.lineTo(right, 80); c.moveTo(left, 330); c.lineTo(right, 330); c.stroke();
+    c.save(); c.beginPath(); c.rect(left, 60, X(Math.min(6, lt)) - left, 300); c.clip();
+    c.beginPath(); for (let tt = 0; tt <= 6; tt += 0.03) { const y = 330 - bright(tt) * 240; tt === 0 ? c.moveTo(X(tt), y) : c.lineTo(X(tt), y); }
+    c.strokeStyle = '#64d2ff'; c.lineWidth = 5; c.shadowColor = 'rgba(100,210,255,.9)'; c.shadowBlur = 14; c.stroke(); c.shadowBlur = 0; c.restore();
+    for (let k = 0; k * 0.2 < 6; k++) { const tk = k * 0.2; if (tk > lt) break; if (tk >= 1.6 && tk < 3.4) continue; c.fillStyle = '#bf5af2'; c.shadowColor = 'rgba(191,90,242,.9)'; c.shadowBlur = 10; roundRect(c, X(tk) - 3, 430, 6, 70, 3); c.fill(); c.shadowBlur = 0; }
+    const st = lt < 1.6 ? ['redraw at 5 fps', '#30d158'] : lt < 3.4 ? ['stop drawing → macOS falls back to SDR', '#ff375f'] : ['resume → brightness is back', '#30d158'];
+    c.fillStyle = st[1]; c.font = `600 26px ${SANS}`; c.fillText(st[0], left, 575);
+    c.fillStyle = '#8e8e93'; c.font = `500 20px ${MONO}`; c.fillText('thermal ≥ serious → overlay closes', left, 612);
+  }
+
+  // 6. end
+  if (t >= 29.6) {
+    const lt = t - 29.6;
+    sparks($('p6'), lt + 2, 90, 1.2);
+    const c = clear($('h6')); c.drawImage(heroOn[onFrame(lt + 1.2)], 0, 0, 1136, 688); $('h6').style.opacity = eOut(seg(lt, 0.2, 1.0));
+    rise($('s6title'), lt, 0.6, 0.9, 40); rise($('s6sub'), lt, 1.3, 0.9, 24); rise($('s6tag'), lt, 2.0, 0.8, 12);
+  }
+};
+resolveReady();
+</script>
+</body>
+</html>
