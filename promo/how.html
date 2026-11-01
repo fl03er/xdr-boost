@@ -3,7 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>XDR Boost: how it works</title>
+<link rel="stylesheet" href="vendor/katex/katex.min.css"><script src="vendor/katex/katex.min.js"></script>
 <style>
+  .kx .katex { font-size: 1em; }
+
+
+  .kx .katex { font-size: 1em; }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
@@ -89,6 +94,7 @@
     <div class="lgrid"></div>
     <div class="h1" id="s2title" style="top:110px; font-size:84px;">Pixels stop at 1.0.</div>
     <div class="sub" id="s2sub" style="top:220px;">Above it is headroom that ordinary apps never use.</div>
+    <div class="abs" id="bdg" style="z-index:5; left:290px; top:770px; padding:14px 38px; border-radius:42px; background:#1d1d1f; color:#fff; font-size:30px; opacity:0;"><span class="kx" data-tex="\mathrm{headroom}=\dfrac{\mathrm{peak}}{\mathrm{SDR\ white}}=\dfrac{1600}{500}=3.2"></span></div>
     <div class="card" id="s2card" style="left:200px; top:340px; width:1520px; height:560px;"><canvas id="c2" class="abs" width="1520" height="560" style="left:0;top:0"></canvas></div>
   </section>
 
@@ -120,13 +126,14 @@
     <div class="h1" id="s4title" style="top:100px; font-size:84px;">Multiply, in the right space.</div>
     <div class="sub" id="s4sub" style="top:210px;">Pixels are gamma-encoded, so the gain is a power curve.</div>
     <div class="card" id="s4card" style="left:110px; top:320px; width:940px; height:640px;"><canvas id="c4" class="abs" width="940" height="640" style="left:0;top:0"></canvas></div>
+    <div class="abs" id="klab" style="left:600px; top:858px; font-size:28px; color:#5e5ce6; opacity:0;"><span class="kx" data-tex="k=L^{1/2.5}"></span></div>
     <div class="pcard" id="r1" style="top:320px;"><div class="a big">1.0×</div><div class="b">gain</div><div class="c big">1.00</div><div class="d">overlay value · 500 nits</div></div>
     <div class="pcard" id="r2" style="top:456px;"><div class="a big">2.0×</div><div class="b">gain</div><div class="c big">1.32</div><div class="d">overlay value · 1,000 nits</div></div>
     <div class="pcard" id="r3" style="top:592px;"><div class="a big">3.2×</div><div class="b">gain</div><div class="c big">1.59</div><div class="d">overlay value · 1,600 nits</div></div>
     <div class="telemetry mono" id="f4" style="left:1090px; top:740px; width:700px; height:220px; padding:30px 36px; font-size:25px; line-height:1.7;">
-      <span style="color:#8e8e93">light  = (k · v)<sup>2.5</sup> = k<sup>2.5</sup> · v<sup>2.5</sup></span><br>
-      <span style="color:#8e8e93">want   k<sup>2.5</sup> = L</span><br>
-      <span class="grad" style="font-size:40px; font-weight:600;">k = L<sup style="font-size:.6em">1/2.5</sup></span>
+      <span class="kx" style="color:#8e8e93; font-size:30px" data-tex="\mathrm{light}=(k\,v)^{2.5}=k^{2.5}\,v^{2.5}"></span><br>
+      <span class="kx" style="color:#8e8e93; font-size:30px" data-tex="\text{want }k^{2.5}=L"></span><br>
+      <span class="kx grad" style="font-size:44px;" data-tex="k=L^{1/2.5}"></span>
     </div>
   </section>
 
@@ -159,7 +166,14 @@ const eInOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 const lerp = (a, b, x) => a + (b - a) * x;
 const $ = id => document.getElementById(id);
 function rise(el, t, start, dur = 0.7, dist = 30, base = '') { const x = eOut(seg(t, start, start + dur)); el.style.opacity = x; el.style.transform = `${base} translateY(${(1 - x) * dist}px)`; }
-function clear(cv) { const c = cv.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); return c; }
+const DPR = Number(new URLSearchParams(location.search).get('dpr') || 1);
+for (const cv of document.querySelectorAll('canvas')) {
+  const lw = cv.width, lh = cv.height, hi = !/^p\d+$/.test(cv.id) ? DPR : 1;
+  cv.dataset.lw = lw; cv.dataset.lh = lh; cv.dataset.dpr = hi;
+  if (!cv.style.width) { cv.style.width = lw + 'px'; cv.style.height = lh + 'px'; }
+  cv.width = lw * hi; cv.height = lh * hi;
+}
+function clear(cv) { const c = cv.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); const d = +cv.dataset.dpr || 1; c.setTransform(d, 0, 0, d, 0, 0); return c; }
 function roundRect(c, x, y, w, h, r) { if (w < 0) w = 0; r = Math.min(r, w / 2, h / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
 const MONO = '"SF Mono", Menlo, monospace', SANS = 'Pretendard, -apple-system, sans-serif';
 
@@ -190,6 +204,7 @@ function sparks(cv, t, n = 70, strength = 1) {
 }
 const GRAD = (c, x0, x1) => { const g = c.createLinearGradient(x0, 0, x1, 0); g.addColorStop(0, '#5e5ce6'); g.addColorStop(.35, '#bf5af2'); g.addColorStop(.7, '#ff375f'); g.addColorStop(1, '#ff9f0a'); return g; };
 
+document.querySelectorAll('.kx').forEach(e => katex.render(e.dataset.tex, e, { throwOnError: false }));
 window.renderAt = function (t) {
   for (const s of SCENES) {
     const el = $(s.id), vis = t >= s.a && t <= s.b;
@@ -250,8 +265,7 @@ window.renderAt = function (t) {
     const br = eOut(seg(lt, 4.0, 4.8)); c.globalAlpha = br; c.strokeStyle = '#86868b'; c.lineWidth = 3;
     c.beginPath(); c.moveTo(px(1), 360); c.lineTo(px(1), 372); c.lineTo(px(3.2), 372); c.lineTo(px(3.2), 360); c.stroke();
     c.fillStyle = '#6e6e73'; c.font = `500 26px ${SANS}`; c.textAlign = 'center'; c.fillText('No ordinary app draws here', (px(1) + px(3.2)) / 2, 412); c.textAlign = 'left'; c.globalAlpha = 1;
-    const fb = eOut(seg(lt, 4.8, 5.5)); c.globalAlpha = fb; c.fillStyle = '#1d1d1f'; roundRect(c, 90, 460 - (1 - fb) * 14, 760, 60, 30); c.fill();
-    c.fillStyle = '#fff'; c.font = `600 26px ${MONO}`; c.fillText('headroom = peak ÷ SDR white = 1,600 ÷ 500 = 3.2', 118, 499 - (1 - fb) * 14); c.globalAlpha = 1;
+    const fb = eOut(seg(lt, 4.8, 5.5)); $('bdg').style.opacity = fb; $('bdg').style.transform = `translateY(${(1 - fb) * 14}px)`;
   }
 
   // 3. wake the HDR mode
@@ -292,7 +306,7 @@ window.renderAt = function (t) {
     c.setLineDash([12, 10]); c.strokeStyle = '#ff375f'; c.lineWidth = 4; curve(l => l, lerp(1, 3.2, draw)); c.stroke(); c.setLineDash([]);
     c.save(); c.strokeStyle = GRAD(c, X(1), X(3.2)); c.lineWidth = 7; c.shadowColor = 'rgba(191,90,242,.6)'; c.shadowBlur = 18; curve(l => Math.pow(l, 1 / 2.5), lerp(1, 3.2, draw)); c.stroke(); c.restore();
     c.globalAlpha = eOut(seg(lt, 2.0, 2.8)); c.fillStyle = '#ff375f'; c.font = `600 21px ${SANS}`; c.fillText('k = L  overshoots, channels clip, hues shift', X(1.15), Y(2.75));
-    c.fillStyle = '#5e5ce6'; c.fillText('k = L^(1/2.5)', X(2.15), Y(Math.pow(2.15, 0.4)) + 56); c.globalAlpha = 1;
+    c.globalAlpha = 1; $('klab').style.opacity = eOut(seg(lt, 2.0, 2.8));
     // the moving point
     const k = Math.pow(L, 1 / 2.5), px = X(L), py = Y(k), a = eOut(seg(lt, 1.4, 1.9));
     c.globalAlpha = a; c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 2; c.setLineDash([6, 6]); c.beginPath(); c.moveTo(px, oy); c.lineTo(px, py); c.lineTo(ox, py); c.stroke(); c.setLineDash([]);

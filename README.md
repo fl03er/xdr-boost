@@ -23,14 +23,22 @@ https://github.com/user-attachments/assets/5c02df97-60f9-469a-b94c-d5074c5938d0
 
 1. A transparent, click-through window covers the **built-in display** and draws EDR content (a value above 1.0).
    macOS sees HDR content and puts the panel into EDR mode.
-2. EDR mode opens headroom (about 3.2× on the M1 Pro: SDR white is 500 nits, HDR peaks at 1,600).
+2. EDR mode opens headroom (about $3.2\times$ on the M1 Pro: SDR white is 500 nits, HDR peaks at 1,600).
    The window multiplies everything beneath it (`compositingFilter = "multiply"`) by your factor.
-3. The applied factor is `min(your setting, live headroom)`, re-checked every 0.5 s. The overlay keeps redrawing
+3. The applied factor is $\min(\text{setting},\ \text{headroom})$, re-checked every 0.5 s. The overlay keeps redrawing
    (5 fps), because macOS drops EDR content back to SDR brightness once it stops updating.
 4. Quit the app and the window disappears; brightness returns to normal.
 
-The factor is in linear light (2.0× ≈ 1,000 nits). The value actually drawn is `factor^(1/2.5)`, which keeps colours
+The factor is in linear light (2.0× ≈ 1,000 nits). The value actually drawn is $k = L^{1/2.5}$, which keeps colours
 from clipping channel by channel.
+
+$$
+\begin{aligned}
+\text{headroom} &= \frac{\text{peak}}{\text{SDR white}} = \frac{1600}{500} = 3.2 \\
+\text{applied} &= \min(\text{setting},\ \text{headroom}) \\
+k &= L^{1/2.5}
+\end{aligned}
+$$
 
 ## Use it
 

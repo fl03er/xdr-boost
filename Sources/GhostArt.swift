@@ -77,8 +77,7 @@ enum GhostArt {
     }()
 
     /// One lit frame. `fade` 0...1 brings the liquid in over the plain ghost when the boost turns on.
-    static func lit(t: Double, fade: Double) -> NSImage {
-        let scale = 2.0
+    static func lit(t: Double, fade: Double, scale: Double = 2.0) -> NSImage {
         let liquid = LiquidGhost.shared?.image(width: Int(iconRect.width * scale), height: Int(iconRect.height * scale), time: t)
         let image = NSImage(size: size)
         guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width * scale), pixelsHigh: Int(size.height * scale),

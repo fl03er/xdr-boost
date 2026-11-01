@@ -29,11 +29,19 @@ https://github.com/user-attachments/assets/5c02df97-60f9-469a-b94c-d5074c5938d0
    macOS는 이를 HDR 콘텐츠로 보고 화면을 EDR 모드로 바꿉니다.
 2. EDR 모드에서 헤드룸이 열립니다(M1 Pro 기준 약 3.2×. SDR 흰색은 500nit, HDR 최대는 1,600nit).
    창은 아래 화면 전체를 배율만큼 곱합니다(`compositingFilter = "multiply"`).
-3. 실제 적용 배율은 `min(설정 배율, 현재 헤드룸)`이고 0.5초마다 다시 맞춥니다. 오버레이는 계속 다시 그립니다(5fps).
+3. 실제 적용 배율은 $\min(\text{setting},\ \text{headroom})$이고 0.5초마다 다시 맞춥니다. 오버레이는 계속 다시 그립니다(5fps).
    EDR 콘텐츠가 갱신되지 않으면 macOS가 SDR 밝기로 되돌리기 때문입니다.
 4. 앱을 끄면 창이 사라지고 밝기가 원래대로 돌아옵니다.
 
-배율은 선형 밝기 기준입니다(2.0× ≈ 1,000nit). 실제로 그리는 값은 `배율^(1/2.5)`이며, 채널별로 색이 잘리는 것을 막아 줍니다.
+배율은 선형 밝기 기준입니다(2.0× ≈ 1,000nit). 실제로 그리는 값은 $k = L^{1/2.5}$이며, 채널별로 색이 잘리는 것을 막아 줍니다.
+
+$$
+\begin{aligned}
+\text{headroom} &= \frac{\text{peak}}{\text{SDR white}} = \frac{1600}{500} = 3.2 \\
+\text{applied} &= \min(\text{setting},\ \text{headroom}) \\
+k &= L^{1/2.5}
+\end{aligned}
+$$
 
 ## 사용법
 

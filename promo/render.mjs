@@ -9,7 +9,7 @@ const ROOT = new URL('.', import.meta.url).pathname;
 const FPS = Number(process.env.FPS || 30), DPR = Number(process.env.DPR || 1), BITRATE = process.env.BITRATE || '18M';
 const PAGE = process.env.PAGE || 'promo.html';
 const [OUT = 'xdr-boost-promo.mp4', from = '0', to] = process.argv.slice(2);  // optional seconds range for test renders
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.png': 'image/png', '.jpg': 'image/jpeg', '.mjs': 'text/javascript' };
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.png': 'image/png', '.jpg': 'image/jpeg', '.css': 'text/css', '.woff2': 'font/woff2', '.mjs': 'text/javascript' };
 const server = http.createServer(async (req, res) => {
   try { const p = join(ROOT, decodeURIComponent(req.url.split('?')[0])); const body = await readFile(p); res.writeHead(200, { 'content-type': types[extname(p)] || 'application/octet-stream' }); res.end(body); }
   catch { res.writeHead(404); res.end(); }

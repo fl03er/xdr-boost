@@ -7,6 +7,9 @@ final class PanelView: NSView {
     var loginEnabled: () -> Bool = { false }
     var onToggleLogin: () -> Void = {}
     var onQuit: () -> Void = {}
+    /// Pixels per point for the liquid effect; nil follows the window. Set by the promo capture tool to render bigger than the screen.
+    var renderScale: CGFloat?
+    private var pixelScale: CGFloat { renderScale ?? window?.backingScaleFactor ?? 2 }
 
     static let width = 320.0
     static let height = 576.0
@@ -128,7 +131,7 @@ final class PanelView: NSView {
         // The ghost on the left, looking at it.
         let gh = 124.0, gw = gh * GhostArt.box.width / GhostArt.box.height
         let ghostRect = CGRect(x: h.minX + 14, y: floorY, width: gw, height: gh)
-        let scale = window?.backingScaleFactor ?? 2
+        let scale = pixelScale
         let liquid = level > 0 ? LiquidGhost.shared?.image(width: Int(gw * scale), height: Int(gh * scale), time: t) : nil
         GhostArt.drawGhost(ctx, in: ghostRect, level: level, t: t, liquid: liquid, detail: true)
 
@@ -321,7 +324,7 @@ final class PanelView: NSView {
         let width = (s as NSString).size(withAttributes: a).width
         if level < 1 { (s as NSString).draw(at: CGPoint(x: p.x - width / 2, y: p.y), withAttributes: a) }
         guard level > 0, let ctx = NSGraphicsContext.current?.cgContext,
-              let liquid = LiquidGhost.shared?.text(s, size: size, weight: weight, kern: kern, scale: window?.backingScaleFactor ?? 2, time: t)
+              let liquid = LiquidGhost.shared?.text(s, size: size, weight: weight, kern: kern, scale: pixelScale, time: t)
         else { return }
         // The image is padded around the glyphs; centre it on the plain text's box. The view is flipped, so flip back.
         let textHeight = (s as NSString).size(withAttributes: a).height

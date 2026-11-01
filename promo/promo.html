@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>XDR Boost promo</title>
+<link rel="stylesheet" href="vendor/katex/katex.min.css"><script src="vendor/katex/katex.min.js"></script>
 <style>
+  .kx .katex { font-size: 1em; }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
   body { font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
@@ -79,6 +82,7 @@
     <div class="lgrid"></div>
     <div class="h1" id="s2title" style="top:110px; font-size:84px;">SDR stops at 500 nits.</div>
     <div class="sub" id="s2sub" style="top:220px;">Your Liquid Retina XDR display can reach 1,600. Ordinary apps never ask for it.</div>
+    <div class="abs" id="bdg" style="z-index:5; left:290px; top:800px; padding:14px 34px; border-radius:42px; background:#1d1d1f; color:#fff; font-size:30px; opacity:0;"><span class="kx" data-tex="\mathrm{headroom}=\dfrac{1600}{500}=3.2\times"></span></div>
     <div class="card" id="s2card" style="left:200px; top:340px; width:1520px; height:560px;">
       <canvas id="c2" class="abs" width="1520" height="560" style="left:0; top:0; width:1520px; height:560px;"></canvas>
     </div>
@@ -130,9 +134,9 @@
       <div class="tag" id="lB" style="left:0; top:268px; width:380px; text-align:center; color:#1d1d1f; font-size:26px;">1,000 NITS</div></div>
     <div class="telemetry mono" id="s4tel">
       <div class="row">
-        <div>setting<b id="t1">2.00×</b></div><div>headroom<b id="t2">3.20×</b></div><div>applied = min()<b id="t3" class="grad">2.00×</b></div><div>encoded = applied^(1/2.5)<b id="t4">1.32</b></div><div>refresh<b>5 fps</b></div>
+        <div>setting<b id="t1">2.00×</b></div><div>headroom<b id="t2">3.20×</b></div><div><span class="kx" data-tex="\min(\mathrm{set},\mathrm{room})"></span><b id="t3" class="grad">2.00×</b></div><div><span class="kx" data-tex="\mathrm{applied}^{1/2.5}"></span><b id="t4">1.32</b></div><div>refresh<b>5 fps</b></div>
       </div>
-      <canvas id="c4"></canvas>
+      <canvas id="c4" width="1320" height="70"></canvas>
     </div>
   </section>
 
@@ -194,7 +198,14 @@ function rise(el, t, start, dur = 0.7, dist = 30, base = '') {
   el.style.opacity = x;
   el.style.transform = `${base} translateY(${(1 - x) * dist}px)`;
 }
-function clear(cv) { const c = cv.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); return c; }
+const DPR = Number(new URLSearchParams(location.search).get('dpr') || 1);
+for (const cv of document.querySelectorAll('canvas')) {
+  const lw = cv.width, lh = cv.height, hi = !/^p\d+$/.test(cv.id) ? DPR : 1;
+  cv.dataset.lw = lw; cv.dataset.lh = lh; cv.dataset.dpr = hi;
+  if (!cv.style.width) { cv.style.width = lw + 'px'; cv.style.height = lh + 'px'; }
+  cv.width = lw * hi; cv.height = lh * hi;
+}
+function clear(cv) { const c = cv.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); const d = +cv.dataset.dpr || 1; c.setTransform(d, 0, 0, d, 0, 0); return c; }
 
 const SCENES = [
   { id: 's1', a: 0.0, b: 6.4 },
@@ -229,7 +240,7 @@ function onFrame(since) {
 }
 function drawHero(cv, since) {
   const c = clear(cv);
-  c.drawImage(since < 0 ? heroOff : heroOn[onFrame(since)], 0, 0, cv.width, cv.height);
+  c.drawImage(since < 0 ? heroOff : heroOn[onFrame(since)], 0, 0, +cv.dataset.lw, +cv.dataset.lh);
 }
 
 // drifting pastel sparks on dark scenes
@@ -249,6 +260,7 @@ function sparks(cv, t, n = 70, strength = 1) {
 }
 
 // ---------- render ----------
+document.querySelectorAll('.kx').forEach(e => katex.render(e.dataset.tex, e, { throwOnError: false }));
 window.renderAt = function (t) {
   for (const s of SCENES) {
     const el = $(s.id);
@@ -324,8 +336,7 @@ window.renderAt = function (t) {
     c.fillText(n2.toLocaleString('en-US') + ' nits', px(Math.max(500, n2)) + 24, 378); c.globalAlpha = 1;
     // headroom badge
     const bd = eOut(seg(lt, 4.8, 5.5));
-    c.globalAlpha = bd; c.fillStyle = '#1d1d1f'; roundRect(c, 90, 490 - (1 - bd) * 14, 560, 54, 27); c.fill();
-    c.fillStyle = '#fff'; c.font = '600 26px "SF Mono", Menlo, monospace'; c.fillText('HEADROOM  =  1600 / 500  =  3.2×', 118, 526 - (1 - bd) * 14); c.globalAlpha = 1;
+    $('bdg').style.opacity = bd; $('bdg').style.transform = `translateY(${(1 - bd) * 14}px)`;
   }
 
   // 3. the trick
