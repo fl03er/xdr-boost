@@ -1,6 +1,6 @@
 # XDR Boost
 
-M1 Pro/Max 이후 맥북프로(Liquid Retina XDR)에서 **일반 화면(SDR)을 HDR 밝기 영역까지** 끌어올리는 메뉴바 앱입니다.
+M1 Pro/Max 이후 맥북프로(Liquid Retina XDR)에서 **일반 화면(SDR)을 HDR 밝기 영역까지** 끌어올리는 메뉴바 앱
 SDR 최대 500nit에 묶여 있는 화면을, 야외처럼 밝은 곳에서 더 잘 보이게 합니다.
 
 ## 원리
