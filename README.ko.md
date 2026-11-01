@@ -21,6 +21,10 @@ https://github.com/user-attachments/assets/045e1164-e6ed-4319-80f1-151b1b4fdc64
 
 ## 원리
 
+원리를 34초로 풀어 본 영상입니다(영어, 자세한 설명은 아래에 있습니다):
+
+https://github.com/user-attachments/assets/5c02df97-60f9-469a-b94c-d5074c5938d0
+
 1. 클릭이 통과되는 투명 창이 **내장 디스플레이**를 덮고 EDR(값 > 1.0) 콘텐츠를 그립니다.
    macOS는 이를 HDR 콘텐츠로 보고 화면을 EDR 모드로 바꿉니다.
 2. EDR 모드에서 헤드룸이 열립니다(M1 Pro 기준 약 3.2×. SDR 흰색은 500nit, HDR 최대는 1,600nit).

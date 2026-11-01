@@ -17,6 +17,10 @@ https://github.com/user-attachments/assets/045e1164-e6ed-4319-80f1-151b1b4fdc64
 
 ## How it works
 
+A 34-second walkthrough of the idea (the details are written out below):
+
+https://github.com/user-attachments/assets/5c02df97-60f9-469a-b94c-d5074c5938d0
+
 1. A transparent, click-through window covers the **built-in display** and draws EDR content (a value above 1.0).
    macOS sees HDR content and puts the panel into EDR mode.
 2. EDR mode opens headroom (about 3.2× on the M1 Pro: SDR white is 500 nits, HDR peaks at 1,600).
