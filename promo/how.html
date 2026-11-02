@@ -34,7 +34,7 @@
   .note { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 22px; color: #0a9fd0; display: flex; align-items: center; gap: 12px; }
   .note::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: #2bb8e6; box-shadow: 0 0 12px #64d2ff; }
 
-  .stack { position: absolute; left: 110px; top: 360px; width: 940px; height: 720px; perspective: 1800px; }
+  .stack { position: absolute; left: 170px; top: 400px; width: 940px; height: 720px; perspective: 1800px; }
   .lay { position: absolute; left: 290px; top: 190px; width: 500px; height: 320px; border-radius: 22px; transform-style: preserve-3d; }
   .dsk { position: absolute; inset: 0; border-radius: 19px; overflow: hidden; }
   .wp { position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 15%, #a8c8ff, transparent 55%), radial-gradient(ellipse at 85% 30%, #ffb8d9, transparent 55%), linear-gradient(160deg, #5e5ce6, #bf5af2 55%, #ff9f0a); }
@@ -45,6 +45,7 @@
   .ltag { position: absolute; transform: translate(-100%, -50%); text-align: right; font-family: "SF Mono", ui-monospace, Menlo, monospace; white-space: nowrap; }
   .ltag b { display: block; font-size: 21px; font-weight: 700; letter-spacing: .1em; }
   .ltag i { display: block; font-style: normal; font-size: 18px; color: #a1a1a6; margin-top: 4px; }
+  .ltag.one b { font-size: 16px; } .ltag.one i { font-size: 14px; margin-top: 2px; }
   .ltag .sw { position: relative; display: block; width: 340px; margin-left: auto; height: 30px; margin-top: 8px; overflow: hidden; }
   .ltag .sw span { position: absolute; right: 0; top: 0; padding: 3px 12px; border-radius: 8px; font-size: 16px; white-space: nowrap; }
   .codep { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 22px; line-height: 42px; color: #c7c7cc; white-space: pre; position: relative; }
@@ -101,14 +102,21 @@
     <div class="h1" id="s2title" style="top:100px; font-size:84px;">Wake the HDR mode.</div>
     <div class="sub" id="s2sub" style="top:210px;">An invisible window shows one value above 1.0.</div>
     <div class="stack">
-      <div class="lay" id="lyX" style="background:#0b0b0f; border:3px solid #2a2a2e;"><div class="dsk" id="lyXd"><div class="wp"></div><div class="win"></div></div><i class="mk" id="kX" style="left:0;top:50%"></i><i class="mk" id="mX" style="left:62%;top:56%"></i></div>
-      <div class="lay" id="lyD" style="border:3px solid #2a2a2e;"><div class="dsk"><div class="wp"></div><div class="win"></div></div><i class="mk" id="kD" style="left:0;top:50%"></i><i class="mk" id="mD" style="left:62%;top:56%"></i></div>
-      <div class="lay" id="lyO" style="border:3px dashed rgba(255,255,255,.4);"><div class="dsk" id="lyOf"></div><i class="mk" id="kO" style="left:0;top:50%"></i><i class="mk" id="mO" style="left:62%;top:56%"></i><i class="mk" id="cO" style="left:50%;top:50%"></i></div>
+      <div class="lay" id="lyB" style="background:#0b0d16; border:2px solid #2a2a35;"><div class="dsk" id="lyBl" style="background:radial-gradient(circle, rgba(175,205,255,.95) 0 2.2px, transparent 3.4px) 0 0/20px 20px;"></div><i class="mk" id="kB" style="left:0;top:0"></i><i class="mk" id="mB" style="left:40%;top:50%"></i></div>
+      <div class="lay" id="lyDf" style="background:rgba(235,238,255,.16); border:1.5px solid rgba(255,255,255,.28);"><i class="mk" id="kDf" style="left:0;top:0"></i><i class="mk" id="mDf" style="left:40%;top:50%"></i></div>
+      <div class="lay" id="lyF" style="background:linear-gradient(90deg, rgba(120,150,255,.26), rgba(255,255,255,.2)); border:1.5px solid rgba(255,255,255,.28);"><i class="mk" id="kF" style="left:0;top:0"></i><i class="mk" id="mF" style="left:40%;top:50%"></i></div>
+      <div class="lay" id="lyL" style="border:2px solid #2a2a2e;"><div class="dsk" id="lyLd"><div class="wp"></div><div class="win"></div><div style="position:absolute; inset:0; background:repeating-linear-gradient(90deg, rgba(255,60,60,.13) 0 2px, rgba(60,255,90,.13) 2px 4px, rgba(70,110,255,.13) 4px 6px);"></div></div><i class="mk" id="kL" style="left:0;top:0"></i><i class="mk" id="mL" style="left:40%;top:50%"></i></div>
+      <div class="lay" id="lyG" style="background:linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.03) 60%); border:1.5px solid rgba(255,255,255,.5);"><i class="mk" id="kG" style="left:0;top:0"></i><i class="mk" id="mG" style="left:40%;top:50%"></i></div>
+      <div class="lay" id="lyO" style="border:3px dashed rgba(255,255,255,.4);"><div class="dsk" id="lyOf"></div><i class="mk" id="kO" style="left:0;top:0"></i><i class="mk" id="mO" style="left:40%;top:50%"></i><i class="mk" id="cO" style="left:50%;top:50%"></i></div>
     </div>
     <canvas id="t2" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
-    <div class="ltag" id="tgO"><b id="tgOb">OVERLAY</b><i id="tgOi">invisible window</i><span class="sw"><span id="sw0" style="background:#2c2c30; color:#a1a1a6;">8-bit unorm · max 255 = 1.0</span><span id="sw1" style="background:rgba(191,90,242,.18); color:#e6b8ff;">rgba16Float · values &gt; 1.0 allowed</span></span></div>
-    <div class="ltag" id="tgD"><b style="color:#a1a1a6">DESKTOP</b><i>SDR · every value ≤ 1.0</i></div>
-    <div class="ltag" id="tgX"><b style="color:#c7c7cc">OUTPUT</b><i id="tgXi">compositor output</i></div>
+    <div class="ltag" id="tgO"><b id="tgOb">OVERLAY WINDOW</b><i id="tgOi">macOS · invisible</i><span class="sw"><span id="sw0" style="background:#2c2c30; color:#a1a1a6;">8-bit unorm · max 255 = 1.0</span><span id="sw1" style="background:rgba(191,90,242,.18); color:#e6b8ff;">rgba16Float · values &gt; 1.0 allowed</span></span></div>
+    <div class="ltag one" id="tgG"><b>COVER GLASS</b><i>the light leaves here</i></div>
+    <div class="ltag one" id="tgL"><b id="tgLb">LCD</b><i id="tgLi">lets part of the light through</i></div>
+    <div class="ltag one" id="tgF"><b>OPTICAL FILMS</b><i>even colour and brightness</i></div>
+    <div class="ltag one" id="tgDf"><b>DIFFUSER</b><i>spreads each LED's light</i></div>
+    <div class="ltag one" id="tgB"><b style="color:#9cb8ff">MINI-LED BACKLIGHT</b><i>local dimming zones</i></div>
+    <div class="abs mono" id="fn2" style="left:110px; top:1030px; font-size:15px; color:#636366;">MacBook Pro (M1 Pro, 2021): mini-LED backlight with local dimming and an LCD, per Apple. Film layers drawn as in a typical mini-LED LCD.</div>
     <div class="glass" id="code2" style="left:1090px; top:330px; width:730px; height:220px; padding:26px 34px;"><div id="hl2"></div><pre class="codep" id="code2t"></pre></div>
     <div class="glass" id="gauge2" style="left:1090px; top:590px; width:730px; height:290px; padding:30px 38px;">
       <div class="cap" style="font-size:17px; letter-spacing:0;">screen.maximumExtendedDynamicRangeColorComponentValue</div>
@@ -276,8 +284,8 @@ function sparks(cv, t, n, strength) {
 const setBloom = (el, L, x = 40, y = 60) => { const a = clamp((L - 1) / (HEADROOM - 1)); el.style.opacity = 0.85 * a; el.style.background = `radial-gradient(ellipse 45% 40% at ${x}% ${y}%, rgba(${valRGB(Math.max(L, 1.01))},.55), transparent 70%)`; };
 
 // ---------- timeline ----------
-const T1 = 4.0, T2 = 12.8, T3 = 22.4, T4 = 34.8, T5 = 44.8;
-const DURATION = 50.4; window.DURATION = DURATION;
+const T1 = 4.0, T2 = 12.8, T3 = 23.2, T4 = 35.6, T5 = 45.6;
+const DURATION = 51.2; window.DURATION = DURATION;
 const SC = [{ id: 's0', a: 0, b: T1 + 0.6, dark: 1 }, { id: 's1', a: T1, b: T2 + 0.6 }, { id: 's2', a: T2, b: T3 + 0.6, dark: 1 },
   { id: 's3', a: T3, b: T4 + 0.6 }, { id: 's4', a: T4, b: T5 + 0.6, dark: 1 }, { id: 's5', a: T5, b: DURATION, dark: 1 }];
 
@@ -293,7 +301,7 @@ function ch1Bar(lt) {
   return { end: Math.min(cv, HEADROOM), wall: 0, cv };
 }
 // chapter 02 beats
-const B2 = { t1: 1.4, e1: 2.0, t2: 3.2, e2: 3.8, t3: 4.6, e3: 5.3, t4: 6.0, trace: 6.6, collapse: 8.0 };
+const B2 = { t1: 1.4, e1: 2.0, t2: 3.2, e2: 3.8, t3: 4.6, e3: 5.3, t4: 6.0, trace: 6.6, collapse: 8.9 };
 function ch2State(lt) {
   const head = 1 + (HEADROOM - 1) * eInOut(seg(lt, B2.e1, B2.e1 + 1.2));
   const k = lerp(1, kOf(SETTING), eInOut(seg(lt, B2.e3, B2.e3 + 0.6)));
@@ -346,8 +354,8 @@ function cursorAt(t) {
     else p = springPath(lt, [[0, C1.x + px1(3.3) + 4, gy], [5.8, 1790, 610]]);
     return { x: p[0], y: p[1], a: seg(lt, 2.4, 2.7) * (1 - seg(lt, 8.2, 8.6)), down: lt > 3.25 && lt < 5.5 }; }
   if (t < T3) { const lt = t - T2;
-    const [x, y] = springPath(lt, [[0, 1700, 1100], [2.0, 1650, 377], [3.8, 1560, 419], [5.3, LIT[0] + 40, LIT[1] + 10], [6.5, PD[0] + 8, PD[1] + 10], [8.1, 1040, 1080]]);
-    return { x, y, a: seg(lt, 1.9, 2.1) * (1 - seg(lt, 8.4, 8.8)), down: false }; }
+    const [x, y] = springPath(lt, [[0, 1700, 1100], [2.0, 1650, 377], [3.8, 1560, 419], [5.3, LIT[0] + 40, LIT[1] + 10], [6.5, PD[0] + 8, PD[1] + 10], [8.9, 1040, 1080]]);
+    return { x, y, a: seg(lt, 1.9, 2.1) * (1 - seg(lt, 9.2, 9.6)), down: false }; }
   if (t < T4) { const lt = t - T3, pt = L => [C3.x + X3(L), C3.y + Y3(kOf(L))];
     let p;
     if (lt < 2.7) p = springPath(lt, [[0, 1400, 1100], [1.9, ...pt(1)]]);
@@ -457,26 +465,31 @@ function draw2(lt) {
   const S = $('s2'), st = ch2State(lt);
   sparks($('p2'), lt, 40, 0.8); setBloom($('b2'), 1 + st.mult * (st.boost - 1), 33, 62);
   rise($('s2title'), lt, 0.15); rise($('s2sub'), lt, 0.4, 24);
-  // the layer stack: output, desktop, overlay; exploded, then collapsed by "multiply"
-  const base = 'rotateX(55deg) rotateZ(-35deg)';
-  ['lyX', 'lyD', 'lyO'].forEach((id, i) => {
-    const z = lerp([0, 150, 290][i], [0, 8, 16][i], st.mult), a = clamp((lt - 0.6 - 0.12 * (2 - i)) / 0.3), lift = (1 - spring(lt - 0.6 - 0.12 * (2 - i))) * 80;
-    $(id).style.opacity = a; $(id).style.transform = `${base} translateZ(${z + lift}px)`;
+  // the stack: macOS's overlay window above the MacBook Pro panel, exploded, then collapsed by "multiply"
+  const base = 'rotateX(55deg) rotateZ(-35deg)', PL = ['lyB', 'lyDf', 'lyF', 'lyL', 'lyG', 'lyO'], ZX = [0, 55, 110, 165, 220, 360];
+  PL.forEach((id, i) => {
+    const t0 = 0.6 + 0.1 * i, z = lerp(ZX[i], i * 5, st.mult), lift = (1 - spring(lt - t0)) * 80;
+    $(id).style.opacity = clamp((lt - t0) / 0.3); $(id).style.transform = `${base} translateZ(${z + lift}px)`;
   });
   const rim = eInOut(seg(lt, B2.e1, B2.e1 + 0.6)), fill = eInOut(seg(lt, B2.e3, B2.e3 + 0.6));
   $('lyO').style.border = rim > 0.01 ? `3px solid rgba(${valRGB(1 + 2.2 * rim)},${0.4 + 0.5 * rim})` : '3px dashed rgba(255,255,255,.4)';
   $('lyO').style.boxShadow = `0 0 ${70 * rim}px rgba(191,90,242,${0.6 * rim})`;
   $('lyOf').style.background = `rgba(${valRGB(st.boost)},${0.16 * fill})`;
-  const out = st.mult * (st.boost - 1) / (HEADROOM - 1);
-  $('lyXd').style.filter = `brightness(${1 + 0.55 * out}) saturate(${1 + 0.15 * out})`;
-  $('lyX').style.boxShadow = `0 0 ${130 * out}px rgba(255,170,230,${0.55 * out})`;
-  // labels sit beside each plane's left edge
-  [['tgO', 'kO'], ['tgD', 'kD'], ['tgX', 'kX']].forEach(([tg, k], i) => {
-    const [x, y] = local($(k), S); $(tg).style.left = (x - 26) + 'px'; $(tg).style.top = y + 'px'; $(tg).style.opacity = clamp((lt - 1.0 - 0.1 * i) / 0.3) * (i < 2 ? 1 - st.mult : 1);
+  // light out = LED x LCD: past SDR white the LED zones have to run brighter
+  const out = st.mult * (st.boost - 1) / (HEADROOM - 1), led = Math.max(out, 0.6 * seg(lt, B2.trace + 1.45, B2.trace + 1.8) * (1 - st.mult));
+  $('lyBl').style.filter = `brightness(${0.75 + 1.1 * led})`; $('lyB').style.boxShadow = `0 0 ${90 * led}px rgba(150,180,255,${0.6 * led})`;
+  $('lyLd').style.filter = `brightness(${1 + 0.55 * out}) saturate(${1 + 0.15 * out})`;
+  $('lyG').style.boxShadow = `0 0 ${130 * out}px rgba(255,170,230,${0.5 * out})`;
+  // labels sit beside each plane's left edge; once collapsed only the panel's label stays
+  [['tgB', 'kB'], ['tgDf', 'kDf'], ['tgF', 'kF'], ['tgL', 'kL'], ['tgG', 'kG'], ['tgO', 'kO']].forEach(([tg, k], i) => {
+    const [x, y] = local($(k), S); $(tg).style.left = (x - 26) + 'px'; $(tg).style.top = y + 'px';
+    $(tg).style.opacity = clamp((lt - 1.0 - 0.08 * i) / 0.3) * (tg === 'tgL' ? 1 : 1 - st.mult);
   });
   $('tgOb').style.color = rim > 0.5 ? valColor(HEADROOM) : '#f5f5f7';
-  $('tgOi').textContent = lt < B2.e3 ? 'invisible window' : `value ${f2(kOf(SETTING))} everywhere`;
-  $('tgXi').textContent = st.mult < 0.5 ? 'compositor output' : 'desktop × overlay → EDR';
+  $('tgOi').textContent = lt < B2.e3 ? 'macOS · invisible' : `value ${f2(kOf(SETTING))} everywhere`;
+  $('tgLb').textContent = st.mult < 0.5 ? 'LCD' : 'LIQUID RETINA XDR';
+  $('tgLi').textContent = st.mult < 0.5 ? 'lets part of the light through' : 'light out = LED × LCD';
+  $('fn2').style.opacity = clamp((lt - 1.4) / 0.4);
   const sw = eInOut(seg(lt, B2.e2, B2.e2 + 0.4));
   $('sw0').style.transform = `translateY(${-sw * 32}px)`; $('sw1').style.transform = `translateY(${(1 - sw) * 32}px)`;
   // code, typed line by line; each line lights what it changes
@@ -503,21 +516,26 @@ function draw2(lt) {
   odo($('g2v'), st.head, 2, 1); $('g2v').style.color = valColor(st.head, '#8e8e93');
   glow($('g2v'), st.head - ch2State(lt - 0.15).head, valColor(Math.max(st.head, 1.3)));
   $('g2b').style.width = (st.head / HEADROOM * 100) + '%';
-  // one desktop pixel travels through the stack
+  // one pixel: set on the LCD, multiplied by the overlay, then lit by a brighter LED zone
   const c = clear($('t2')), tr = lt - B2.trace;
   if (tr > 0) {
-    const pD = local($('mD'), S), pO = local($('mO'), S), pX = local($('mX'), S), fade = 1 - st.mult;
+    const pL = local($('mL'), S), pO = local($('mO'), S), pB = local($('mB'), S), pG = local($('mG'), S), fade = 1 - st.mult;
     const ring = (p, col, a, r = 16) => { c.globalAlpha = a * fade; c.strokeStyle = col; c.lineWidth = 3; c.beginPath(); c.arc(p[0], p[1], r, 0, 7); c.stroke(); c.fillStyle = col; c.beginPath(); c.arc(p[0], p[1], 5, 0, 7); c.fill(); };
     const label = (p, txt, col, a, dx = 30, dy = 0) => { c.globalAlpha = a * fade; const w = mtext(c, txt, 0, 0, 25, 'left', '', false) + 28; if (dx < 0) dx = -w / 2; c.fillStyle = 'rgba(14,14,18,.94)'; roundRect(c, p[0] + dx, p[1] - 22 + dy, w, 44, 14); c.fill(); c.fillStyle = col; mtext(c, txt, p[0] + dx + 14, p[1] + 8 + dy, 25); };
-    ring(pD, '#c7c7cc', clamp(tr / 0.25)); label(pD, `pixel v = ${f2(PIXEL_V)}`, '#c7c7cc', clamp((tr - 0.1) / 0.25));
-    const up = seg(tr, 0.3, 0.7); c.globalAlpha = fade; c.strokeStyle = 'rgba(255,255,255,.5)'; c.setLineDash([6, 6]); c.lineWidth = 2;
-    c.beginPath(); c.moveTo(pD[0], pD[1]); c.lineTo(lerp(pD[0], pO[0], up), lerp(pD[1], pO[1], up)); c.stroke(); c.setLineDash([]);
-    ring(pO, valColor(SETTING), clamp((tr - 0.6) / 0.2)); label(pO, `× k = ${k}`, valColor(SETTING), clamp((tr - 0.7) / 0.25));
-    const dn = seg(tr, 0.8, 1.3), res = PIXEL_V * kOf(SETTING);
-    if (dn > 0) { c.globalAlpha = fade; c.strokeStyle = valColor(Math.pow(res, GAMMA)); c.lineWidth = 3; c.beginPath(); c.moveTo(pO[0], pO[1]); c.lineTo(lerp(pO[0], pX[0], dn), lerp(pO[1], pX[1], dn)); c.stroke();
-      c.shadowColor = valColor(Math.pow(res, GAMMA)); c.shadowBlur = 20; c.fillStyle = '#fff'; c.beginPath(); c.arc(lerp(pO[0], pX[0], dn), lerp(pO[1], pX[1], dn), 7, 0, 7); c.fill(); c.shadowBlur = 0; }
-    ring(pX, valColor(Math.pow(res, GAMMA)), clamp((tr - 1.3) / 0.2), 20);
-    label(pX, `${f2(PIXEL_V)} × ${k} = ${f2(res)}  > 1.0 → EDR`, valColor(Math.pow(res, GAMMA)), clamp((tr - 1.35) / 0.25), -1, 64);
+    const beam = (A, B, f, col, dash) => { if (f <= 0) return; c.globalAlpha = fade; c.strokeStyle = col; c.lineWidth = dash ? 2 : 3; c.setLineDash(dash ? [6, 6] : []); c.beginPath(); c.moveTo(A[0], A[1]); c.lineTo(lerp(A[0], B[0], f), lerp(A[1], B[1], f)); c.stroke(); c.setLineDash([]);
+      if (!dash && f < 1) { c.shadowColor = col; c.shadowBlur = 20; c.fillStyle = '#fff'; c.beginPath(); c.arc(lerp(A[0], B[0], f), lerp(A[1], B[1], f), 7, 0, 7); c.fill(); c.shadowBlur = 0; } };
+    const res = PIXEL_V * kOf(SETTING), resCol = valColor(Math.pow(res, GAMMA));
+    ring(pL, '#c7c7cc', clamp(tr / 0.25)); label(pL, `pixel v = ${f2(PIXEL_V)}`, '#c7c7cc', clamp((tr - 0.1) / 0.25) * (1 - seg(tr, 1.15, 1.3)));
+    beam(pL, pO, seg(tr, 0.3, 0.6), 'rgba(255,255,255,.5)', true);
+    ring(pO, valColor(SETTING), clamp((tr - 0.55) / 0.2)); label(pO, `× k = ${k}`, valColor(SETTING), clamp((tr - 0.6) / 0.25) * (1 - seg(tr, 1.9, 2.1)));
+    beam(pO, pL, seg(tr, 0.85, 1.2), resCol);
+    ring(pL, resCol, clamp((tr - 1.2) / 0.2), 20); label(pL, `${f2(PIXEL_V)} × ${k} = ${f2(res)}  > 1.0 → EDR`, resCol, clamp((tr - 1.25) / 0.25));
+    beam(pL, pB, seg(tr, 1.45, 1.75), 'rgba(160,190,255,.8)', true);
+    ring(pB, '#9cb8ff', clamp((tr - 1.75) / 0.2), 20); label(pB, 'LED zone runs above SDR level', '#9cb8ff', clamp((tr - 1.8) / 0.25));
+    const upF = seg(tr, 1.95, 2.3), top = [pG[0], pG[1] - 120];
+    if (upF > 0) { c.globalAlpha = fade; const g = c.createLinearGradient(pB[0], pB[1], top[0], top[1]); g.addColorStop(0, 'rgba(160,190,255,.9)'); g.addColorStop(1, resCol);
+      c.strokeStyle = g; c.lineWidth = 6; c.shadowColor = resCol; c.shadowBlur = 24; c.beginPath(); c.moveTo(pB[0], pB[1]); c.lineTo(lerp(pB[0], top[0], upF), lerp(pB[1], top[1], upF)); c.stroke(); c.shadowBlur = 0; }
+    label(top, `up to ${nitsStr(HEADROOM)} nits (peak, HDR)`, valColor(HEADROOM), clamp((tr - 2.3) / 0.25), 24);
     c.globalAlpha = 1;
   }
 }
@@ -721,7 +739,7 @@ window.renderAt = function (t) {
 };
 // measure the DOM anchors once, with the scenes laid out as they will be at those moments
 window.renderAt(T2 + 1.5); OB = center($('cO'));
-window.renderAt(T2 + B2.trace + 0.2); PD = center($('mD'));
+window.renderAt(T2 + B2.trace + 0.2); PD = center($('mL'));
 window.renderAt(T3 - 0.01); LIT = center($('lit159'));
 resolveReady();
 </script>
