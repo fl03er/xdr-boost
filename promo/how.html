@@ -6,359 +6,723 @@
 <link rel="stylesheet" href="vendor/katex/katex.min.css"><script src="vendor/katex/katex.min.js"></script>
 <style>
   .kx .katex { font-size: 1em; }
-
-
-  .kx .katex { font-size: 1em; }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
-  body { font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
+  body { font-family: -apple-system, "SF Pro Display", BlinkMacSystemFont, "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
   .mono { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
-  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #f5f5f7; }
-  .scene { position: absolute; inset: 0; opacity: 0; will-change: opacity, transform; overflow: hidden; }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #050507; }
+  .scene { position: absolute; inset: 0; opacity: 0; overflow: hidden; transform-origin: 0 0; display: none; }
   .light { background: #f5f5f7; color: #1d1d1f; }
   .dark { background: #050507; color: #f5f5f7; }
   .abs { position: absolute; }
   .h1 { position: absolute; left: 0; right: 0; text-align: center; font-weight: 700; letter-spacing: -0.025em; }
-  .sub { position: absolute; left: 0; right: 0; text-align: center; color: #6e6e73; font-size: 30px; font-weight: 400; letter-spacing: -0.01em; }
+  .sub { position: absolute; left: 0; right: 0; text-align: center; color: #6e6e73; font-size: 30px; letter-spacing: -0.01em; }
   .dark .sub { color: #a1a1a6; }
-  .grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px); background-size: 64px 64px; -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 20%, transparent 75%); }
+  .grid { position: absolute; inset: -80px; background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px); background-size: 64px 64px; -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 20%, transparent 75%); }
   .lgrid { position: absolute; inset: 0; background-image: linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.04) 1px, transparent 1px); background-size: 64px 64px; -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 55%, #000 15%, transparent 80%); }
-  .glass { position: absolute; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.12); border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.14); backdrop-filter: blur(20px); }
-  .card { position: absolute; background: #fff; border-radius: 28px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.06); }
-  .tag { position: absolute; font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 22px; letter-spacing: .01em; white-space: nowrap; }
-  .chip { position: absolute; padding: 14px 28px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.16); font-size: 26px; font-weight: 500; color: #f5f5f7; white-space: nowrap; }
-  .grad { background: linear-gradient(90deg, #64d2ff, #5e5ce6, #bf5af2, #ff375f, #ff9f0a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .glass { position: absolute; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.12); border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.14); }
+  .card { position: absolute; background: #fff; border-radius: 24px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.07), inset 0 0 0 1px rgba(0,0,0,.06); }
+  .cap { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 18px; letter-spacing: .08em; color: #8e8e93; }
+  .hero { font-family: KaTeX_Main, serif; font-weight: 400; letter-spacing: 0; line-height: 1.15; }
+  .bloom { position: absolute; inset: 0; opacity: 0; mix-blend-mode: screen; pointer-events: none; }
 
-  .menubar { position: absolute; height: 84px; border-radius: 22px; background: #1c1c1f; color: #f5f5f7; display: flex; align-items: center; padding: 0 34px; font-size: 30px; box-shadow: 0 20px 60px rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.08); }
-  .menubar .left { display: flex; gap: 38px; align-items: center; font-weight: 500; }
-  .menubar .left .app { font-weight: 700; }
-  .apple { width: 28px; height: 34px; }
+  .od { display: inline-block; height: 1.15em; line-height: 1.15em; overflow: hidden; vertical-align: bottom; }
+  .ods { display: block; } .ods span { display: block; height: 1.15em; }
+  .odp { display: inline-block; line-height: 1.15em; vertical-align: bottom; }
 
-  .feat { position: absolute; top: 310px; width: 520px; height: 720px; padding: 44px 44px; }
-  .feat .n { width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #5e5ce6, #bf5af2); color: #fff; font-weight: 700; font-size: 26px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(130,100,255,.6); }
-  .feat .t { margin-top: 26px; font-size: 44px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.08; }
-  .feat .d { margin-top: 18px; font-size: 25px; color: #a1a1a6; line-height: 1.38; }
-  .code { position: absolute; left: 30px; right: 30px; bottom: 30px; padding: 20px 22px; border-radius: 18px; background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.08); font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 19px; line-height: 1.5; color: #c7c7cc; white-space: pre; }
-  .code b { color: #bf5af2; font-weight: 500; } .code i { color: #64d2ff; font-style: normal; } .code u { color: #ff9f0a; text-decoration: none; }
-  .ill { position: absolute; left: 44px; right: 44px; top: 410px; height: 130px; }
+  .pill { padding: 18px 36px; border-radius: 999px; background: #1d1d1f; color: #fff; font-size: 34px; display: flex; gap: 14px; align-items: center; box-shadow: 0 12px 40px rgba(0,0,0,.12); }
+  .note { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 22px; color: #0a9fd0; display: flex; align-items: center; gap: 12px; }
+  .note::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: #2bb8e6; box-shadow: 0 0 12px #64d2ff; }
 
-  .eq { position: absolute; top: 330px; width: 380px; }
-  .scr { position: absolute; width: 380px; height: 240px; border-radius: 22px; overflow: hidden; border: 6px solid #1d1d1f; background: #1d1d1f; box-shadow: 0 20px 50px rgba(0,0,0,.18); }
-  .scr .wp { position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 15%, #a8c8ff, transparent 55%), radial-gradient(ellipse at 85% 30%, #ffb8d9, transparent 55%), linear-gradient(160deg, #5e5ce6, #bf5af2 55%, #ff9f0a); }
-  .scr .win { position: absolute; left: 36px; top: 50px; width: 190px; height: 130px; border-radius: 12px; background: rgba(255,255,255,.88); box-shadow: 0 8px 20px rgba(0,0,0,.25); }
-  .scr .win::before { content: ""; position: absolute; left: 12px; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: #ff5f57; box-shadow: 14px 0 #febc2e, 28px 0 #28c840; }
-  .scr .win::after { content: ""; position: absolute; left: 18px; right: 18px; top: 44px; height: 62px; background: repeating-linear-gradient(#d2d2d7 0 6px, transparent 6px 20px); border-radius: 3px; }
-  .op { position: absolute; font-size: 96px; font-weight: 300; color: #6e6e73; }
-  .telemetry { position: absolute; left: 260px; width: 1400px; top: 690px; height: 230px; padding: 30px 40px; border-radius: 28px; background: #0b0b0f; color: #c7c7cc; box-shadow: 0 30px 80px rgba(0,0,0,.25); }
-  .telemetry .row { display: flex; gap: 60px; font-size: 24px; color: #8e8e93; }
-  .telemetry .row b { color: #f5f5f7; font-weight: 500; display: block; font-size: 40px; margin-top: 6px; }
-  .telemetry canvas { position: absolute; left: 40px; right: 40px; bottom: 22px; width: 1320px; height: 70px; }
+  .stack { position: absolute; left: 110px; top: 360px; width: 940px; height: 720px; perspective: 1800px; }
+  .lay { position: absolute; left: 290px; top: 190px; width: 500px; height: 320px; border-radius: 22px; transform-style: preserve-3d; }
+  .dsk { position: absolute; inset: 0; border-radius: 19px; overflow: hidden; }
+  .wp { position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 15%, #a8c8ff, transparent 55%), radial-gradient(ellipse at 85% 30%, #ffb8d9, transparent 55%), linear-gradient(160deg, #5e5ce6, #bf5af2 55%, #ff9f0a); }
+  .win { position: absolute; left: 44px; top: 56px; width: 230px; height: 160px; border-radius: 12px; background: rgba(255,255,255,.9); box-shadow: 0 8px 20px rgba(0,0,0,.25); }
+  .win::before { content: ""; position: absolute; left: 12px; top: 10px; width: 9px; height: 9px; border-radius: 50%; background: #ff5f57; box-shadow: 15px 0 #febc2e, 30px 0 #28c840; }
+  .win::after { content: ""; position: absolute; left: 18px; right: 18px; top: 46px; height: 90px; background: repeating-linear-gradient(#d2d2d7 0 7px, transparent 7px 22px); border-radius: 3px; }
+  .mk { position: absolute; width: 2px; height: 2px; }
+  .ltag { position: absolute; transform: translate(-100%, -50%); text-align: right; font-family: "SF Mono", ui-monospace, Menlo, monospace; white-space: nowrap; }
+  .ltag b { display: block; font-size: 21px; font-weight: 700; letter-spacing: .1em; }
+  .ltag i { display: block; font-style: normal; font-size: 18px; color: #a1a1a6; margin-top: 4px; }
+  .ltag .sw { position: relative; display: block; width: 340px; margin-left: auto; height: 30px; margin-top: 8px; overflow: hidden; }
+  .ltag .sw span { position: absolute; right: 0; top: 0; padding: 3px 12px; border-radius: 8px; font-size: 16px; white-space: nowrap; }
+  .codep { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 22px; line-height: 42px; color: #c7c7cc; white-space: pre; position: relative; }
+  .codep .g { color: #48484a; }
+  #hl2 { position: absolute; left: 16px; right: 16px; height: 42px; border-radius: 10px; background: rgba(255,255,255,.07); }
 
-  #cursor { position: absolute; left: 0; top: 0; width: 40px; height: 56px; z-index: 50; opacity: 0; filter: drop-shadow(0 3px 4px rgba(0,0,0,.3)); }
-  .step { position: absolute; left: 130px; display: flex; align-items: center; gap: 28px; }
-  .step .b { width: 64px; height: 64px; border-radius: 50%; border: 2px solid rgba(255,255,255,.3); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; flex: none; }
-  .step .x { font-size: 50px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
-  .step .y { font-size: 24px; color: #a1a1a6; margin-top: 6px; }
-  .safe { position: absolute; width: 760px; height: 250px; padding: 38px 44px; }
-  .safe .t { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; }
-  .safe .d { margin-top: 12px; font-size: 25px; color: #a1a1a6; line-height: 1.35; }
-  .safe .c { position: absolute; left: 44px; bottom: 28px; font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 21px; color: #64d2ff; }
+  .pcard { position: absolute; left: 1090px; width: 700px; height: 96px; border-radius: 24px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.07), inset 0 0 0 1px rgba(0,0,0,.06); display: flex; align-items: center; padding: 0 36px; gap: 36px; }
+  .pcard .a { font-family: KaTeX_Main, serif; font-size: 44px; width: 130px; }
+  .pcard .c { font-family: KaTeX_Main, serif; font-size: 52px; width: 150px; }
+  .pcard .d { font-family: KaTeX_Main, serif; font-size: 25px; color: #6e6e73; white-space: nowrap; }
+  .tip { position: absolute; padding: 12px 22px; border-radius: 16px; background: #1d1d1f; color: #fff; font-size: 26px; white-space: nowrap; box-shadow: 0 12px 30px rgba(0,0,0,.25); opacity: 0; }
+  .dark .tip { background: #f5f5f7; color: #1d1d1f; }
+  .tok { position: absolute; left: 0; top: 0; white-space: nowrap; opacity: 0; }
 
-  .lay { position: absolute; width: 700px; height: 440px; border-radius: 22px; transform-style: preserve-3d; }
-  .stack { position: absolute; left: 120px; top: 330px; width: 900px; height: 640px; perspective: 1600px; }
-  .row3 { position: absolute; left: 1090px; width: 700px; }
-  .big { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
-  .pcard { position: absolute; left: 1090px; width: 700px; height: 112px; border-radius: 24px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.06); display: flex; align-items: center; padding: 0 36px; gap: 36px; }
-  .pcard .a { font-size: 44px; font-weight: 700; width: 150px; }
-  .pcard .b { display: none; }
-  .pcard .c { font-size: 52px; font-weight: 600; width: 160px; }
-  .pcard .d { font-size: 24px; color: #6e6e73; white-space: nowrap; }
+  #hud { position: absolute; right: 40px; top: 30px; z-index: 60; padding: 10px 22px; border-radius: 999px; background: rgba(14,14,18,.78); border: 1px solid rgba(255,255,255,.12); color: #8e8e93; font-size: 19px; white-space: nowrap; opacity: 0; }
+  #hud b { font-family: KaTeX_Main, serif; font-size: 22px; font-weight: 400; color: #f5f5f7; } #hud i { font-family: KaTeX_Math, serif; font-size: 22px; color: #c7c7cc; }
+  #fx { position: absolute; left: 0; top: 0; z-index: 70; pointer-events: none; }
+  .cur { position: absolute; left: 0; top: 0; width: 30px; height: 43px; z-index: 80; opacity: 0; filter: drop-shadow(0 3px 4px rgba(0,0,0,.35)); }
 </style>
 </head>
 <body>
 <div id="stage">
 
-  <!-- 1. title -->
-  <section class="scene dark" id="s1">
-    <div class="grid"></div>
-    <canvas id="p1" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
-    <div class="tag" id="s1tag" style="left:0; right:0; top:300px; text-align:center; color:#64d2ff; font-size:26px; letter-spacing:.14em;">XDR BOOST · UNDER THE HOOD</div>
-    <div class="h1" id="s1title" style="top:360px; font-size:140px; color:#fff;">How it works.</div>
-    <div class="sub" id="s1sub" style="top:540px; color:#c7c7cc; font-size:36px;">A hidden headroom, an invisible window, and a little math.</div>
-    <canvas id="pipe" class="abs" width="1400" height="200" style="left:260px; top:720px; width:1400px; height:200px;"></canvas>
+  <!-- title -->
+  <section class="scene dark" id="s0">
+    <div class="grid" id="g0"></div>
+    <canvas id="p0" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
+    <div class="cap" id="s0tag" style="position:absolute; left:0; right:0; top:300px; text-align:center; color:#a1a1a6; font-size:26px; letter-spacing:.16em;">XDR BOOST · UNDER THE HOOD</div>
+    <div class="h1" id="s0title" style="top:360px; font-size:140px; color:#fff;">How it works.</div>
+    <div class="sub" id="s0sub" style="top:540px; color:#c7c7cc; font-size:36px;">A hidden headroom, an invisible window, and a little math.</div>
+    <canvas id="pipe" class="abs" width="1400" height="200" style="left:260px; top:720px;"></canvas>
   </section>
 
-  <!-- 2. pixels stop at 1.0 -->
-  <section class="scene light" id="s2">
+  <!-- 01 headroom -->
+  <section class="scene light" id="s1">
     <div class="lgrid"></div>
-    <div class="h1" id="s2title" style="top:110px; font-size:84px;">Pixels stop at 1.0.</div>
-    <div class="sub" id="s2sub" style="top:220px;">Above it is headroom that ordinary apps never use.</div>
-    <div class="abs" id="bdg" style="z-index:5; left:290px; top:770px; padding:14px 38px; border-radius:42px; background:#1d1d1f; color:#fff; font-size:30px; opacity:0;"><span class="kx" data-tex="\mathrm{headroom}=\dfrac{\mathrm{peak}}{\mathrm{SDR\ white}}=\dfrac{1600}{500}=3.2"></span></div>
-    <div class="card" id="s2card" style="left:200px; top:340px; width:1520px; height:560px;"><canvas id="c2" class="abs" width="1520" height="560" style="left:0;top:0"></canvas></div>
+    <div class="h1" id="s1title" style="top:110px; font-size:84px;">Pixels stop at 1.0.</div>
+    <div class="sub" id="s1sub" style="top:220px;">Above it is headroom that ordinary apps never use.</div>
+    <div class="card" id="s1card" style="left:200px; top:320px; width:1520px; height:440px;"><canvas id="c1" class="abs" width="1520" height="440" style="left:0;top:0"></canvas></div>
+    <div class="abs pill" id="eq1" style="left:200px; top:800px;"></div>
+    <div class="abs" id="h1box" style="left:1220px; top:786px; width:500px; text-align:right;">
+      <div class="cap">BAR END · PIXEL VALUE</div>
+      <div class="hero" id="h1v" style="font-size:120px;"></div>
+      <div style="font-family:KaTeX_Main, serif; font-size:34px; color:#6e6e73;"><span id="h1n"></span> nits</div>
+    </div>
+    <div class="abs note" id="n1" style="left:200px; top:952px;">Headroom is dynamic: macOS reports it, and it can change.</div>
   </section>
 
-  <!-- 3. wake the HDR mode -->
-  <section class="scene dark" id="s3">
-    <div class="grid"></div>
-    <canvas id="p3" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
-    <div class="h1" id="s3title" style="top:100px; font-size:84px;">Wake the HDR mode.</div>
-    <div class="sub" id="s3sub" style="top:210px;">An invisible window shows one value above 1.0.</div>
-    <div class="stack" id="stack3">
-      <div class="lay" id="lyD" style="left:100px; top:110px; background: radial-gradient(ellipse at 20% 15%, #a8c8ff, transparent 55%), radial-gradient(ellipse at 85% 30%, #ffb8d9, transparent 55%), linear-gradient(160deg, #5e5ce6, #bf5af2 55%, #ff9f0a); border: 4px solid #2a2a2e;"></div>
-      <div class="lay" id="lyO" style="left:100px; top:110px; background: linear-gradient(160deg, rgba(100,210,255,.16), rgba(191,90,242,.22)); border: 3px dashed rgba(150,130,255,.95); box-shadow: 0 0 60px rgba(130,100,255,.5);"></div>
+  <!-- 02 EDR mode -->
+  <section class="scene dark" id="s2">
+    <div class="grid" id="g2"></div>
+    <canvas id="p2" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
+    <div class="bloom" id="b2"></div>
+    <div class="h1" id="s2title" style="top:100px; font-size:84px;">Wake the HDR mode.</div>
+    <div class="sub" id="s2sub" style="top:210px;">An invisible window shows one value above 1.0.</div>
+    <div class="stack">
+      <div class="lay" id="lyX" style="background:#0b0b0f; border:3px solid #2a2a2e;"><div class="dsk" id="lyXd"><div class="wp"></div><div class="win"></div></div><i class="mk" id="kX" style="left:0;top:50%"></i><i class="mk" id="mX" style="left:62%;top:56%"></i></div>
+      <div class="lay" id="lyD" style="border:3px solid #2a2a2e;"><div class="dsk"><div class="wp"></div><div class="win"></div></div><i class="mk" id="kD" style="left:0;top:50%"></i><i class="mk" id="mD" style="left:62%;top:56%"></i></div>
+      <div class="lay" id="lyO" style="border:3px dashed rgba(255,255,255,.4);"><div class="dsk" id="lyOf"></div><i class="mk" id="kO" style="left:0;top:50%"></i><i class="mk" id="mO" style="left:62%;top:56%"></i><i class="mk" id="cO" style="left:50%;top:50%"></i></div>
     </div>
-    <div class="tag" id="tO" style="left:150px; top:360px; color:#bf5af2;">OVERLAY · rgba16Float · value 1.59</div>
-    <div class="tag" id="tD" style="left:150px; top:960px; color:#8e8e93;">DESKTOP · SDR · every value ≤ 1.0</div>
-    <div class="glass" id="code3" style="left:1090px; top:340px; width:700px; height:300px; padding:34px 38px; border-radius:26px;">
-      <pre class="mono" id="code3t" style="font-size:23px; line-height:1.75; color:#c7c7cc; white-space:pre;"></pre>
-    </div>
-    <div class="glass" id="gauge3" style="left:1090px; top:680px; width:700px; height:240px; padding:30px 38px; border-radius:26px;">
-      <div class="tag" style="position:static; color:#8e8e93; font-size:17px;">screen.maximumExtendedDynamicRangeColorComponentValue</div>
-      <div class="big" id="g3v" style="font-size:96px; font-weight:600; margin-top:8px;">1.00</div>
-      <div class="abs" style="left:38px; right:38px; bottom:34px; height:14px; border-radius:7px; background:#26262b;"><div id="g3b" style="height:14px; width:30%; border-radius:7px; background:linear-gradient(90deg,#5e5ce6,#bf5af2,#ff375f,#ff9f0a); box-shadow:0 0 24px rgba(191,90,242,.7);"></div></div>
+    <canvas id="t2" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
+    <div class="ltag" id="tgO"><b id="tgOb">OVERLAY</b><i id="tgOi">invisible window</i><span class="sw"><span id="sw0" style="background:#2c2c30; color:#a1a1a6;">8-bit unorm · max 255 = 1.0</span><span id="sw1" style="background:rgba(191,90,242,.18); color:#e6b8ff;">rgba16Float · values &gt; 1.0 allowed</span></span></div>
+    <div class="ltag" id="tgD"><b style="color:#a1a1a6">DESKTOP</b><i>SDR · every value ≤ 1.0</i></div>
+    <div class="ltag" id="tgX"><b style="color:#c7c7cc">OUTPUT</b><i id="tgXi">compositor output</i></div>
+    <div class="glass" id="code2" style="left:1090px; top:330px; width:730px; height:220px; padding:26px 34px;"><div id="hl2"></div><pre class="codep" id="code2t"></pre></div>
+    <div class="glass" id="gauge2" style="left:1090px; top:590px; width:730px; height:290px; padding:30px 38px;">
+      <div class="cap" style="font-size:17px; letter-spacing:0;">screen.maximumExtendedDynamicRangeColorComponentValue</div>
+      <div class="hero" id="g2v" style="font-size:104px; margin-top:6px;"></div>
+      <div class="abs" style="left:38px; right:38px; bottom:58px; height:14px; border-radius:7px; background:#26262b;"><div id="g2b" style="height:14px; width:30%; border-radius:7px; background:#64d2ff; box-shadow:0 0 18px rgba(100,210,255,.8);"></div></div>
+      <div class="abs mono" style="right:38px; bottom:22px; font-size:17px; color:#64d2ff;">reported by macOS</div>
     </div>
   </section>
 
-  <!-- 4. multiply in the right space -->
-  <section class="scene light" id="s4">
+  <!-- 03 multiply -->
+  <section class="scene light" id="s3">
     <div class="lgrid"></div>
-    <div class="h1" id="s4title" style="top:100px; font-size:84px;">Multiply, in the right space.</div>
-    <div class="sub" id="s4sub" style="top:210px;">Pixels are gamma-encoded, so the gain is a power curve.</div>
-    <div class="card" id="s4card" style="left:110px; top:320px; width:940px; height:640px;"><canvas id="c4" class="abs" width="940" height="640" style="left:0;top:0"></canvas></div>
-    <div class="abs" id="klab" style="left:600px; top:858px; font-size:28px; color:#5e5ce6; opacity:0;"><span class="kx" data-tex="k=L^{1/2.5}"></span></div>
-    <div class="pcard" id="r1" style="top:320px;"><div class="a big">1.0×</div><div class="b">gain</div><div class="c big">1.00</div><div class="d">overlay value · 500 nits</div></div>
-    <div class="pcard" id="r2" style="top:456px;"><div class="a big">2.0×</div><div class="b">gain</div><div class="c big">1.32</div><div class="d">overlay value · 1,000 nits</div></div>
-    <div class="pcard" id="r3" style="top:592px;"><div class="a big">3.2×</div><div class="b">gain</div><div class="c big">1.59</div><div class="d">overlay value · 1,600 nits</div></div>
-    <div class="telemetry mono" id="f4" style="left:1090px; top:740px; width:700px; height:220px; padding:30px 36px; font-size:25px; line-height:1.7;">
-      <span class="kx" style="color:#8e8e93; font-size:30px" data-tex="\mathrm{light}=(k\,v)^{2.5}=k^{2.5}\,v^{2.5}"></span><br>
-      <span class="kx" style="color:#8e8e93; font-size:30px" data-tex="\text{want }k^{2.5}=L"></span><br>
-      <span class="kx grad" style="font-size:44px;" data-tex="k=L^{1/2.5}"></span>
+    <div class="h1" id="s3title" style="top:100px; font-size:84px;">Multiply, in the right space.</div>
+    <div class="sub" id="s3sub" style="top:210px;">Pixels are gamma-encoded, so the gain is a power curve.</div>
+    <div class="card" id="s3card" style="left:110px; top:320px; width:940px; height:640px;">
+      <canvas id="c3" class="abs" width="940" height="640" style="left:0;top:0"></canvas>
+      <div class="abs" id="h3box" style="left:130px; top:24px;"><div class="cap">OVERLAY VALUE k</div><div class="hero" id="h3v" style="font-size:96px;"></div></div>
+      <div class="abs kx" id="klab3" style="left:690px; top:478px; font-size:30px; color:#5e5ce6; opacity:0;"></div>
     </div>
+    <div id="rows3"></div>
+    <div class="tip kx" id="tip3"></div>
+    <div class="card" id="proof3" style="left:1090px; top:660px; width:700px; height:300px;">
+      <canvas id="c3p" class="abs" width="700" height="300" style="left:0;top:0"></canvas>
+      <div class="abs kx" id="pf0" style="left:24px; top:14px; font-size:24px; color:#ff375f;"></div>
+      <div class="abs kx" id="pf1" style="left:362px; top:14px; font-size:24px; color:#5e5ce6;"></div>
+    </div>
+    <div class="card" id="der3" style="left:1090px; top:660px; width:700px; height:300px; opacity:0;"></div>
   </section>
 
-  <!-- 5. a loop, not a switch -->
+  <!-- 04 control loop -->
+  <section class="scene dark" id="s4">
+    <div class="grid" id="g4"></div>
+    <canvas id="p4" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
+    <div class="bloom" id="b4"></div>
+    <div class="h1" id="s4title" style="top:100px; font-size:84px;">A loop, not a switch.</div>
+    <div class="sub" id="s4sub" style="top:210px;">The headroom moves, so the boost moves with it.</div>
+    <div class="glass" id="gl4a" style="left:110px; top:330px; width:840px; height:640px;">
+      <canvas id="c4a" class="abs" width="840" height="640" style="left:0;top:0"></canvas>
+      <div class="abs" style="left:0; right:0; bottom:28px; text-align:center; font-size:34px; color:#c7c7cc; font-family:KaTeX_Main, serif;"><i style="font-family:KaTeX_Math">t</i> = <span id="ts4"></span> s</div>
+    </div>
+    <div class="glass" id="gl4b" style="left:990px; top:330px; width:820px; height:640px;"><canvas id="c4b" class="abs" width="820" height="640" style="left:0;top:0"></canvas></div>
+    <div class="tip kx" id="tip4"></div>
+  </section>
+
+  <!-- outro -->
   <section class="scene dark" id="s5">
-    <div class="grid"></div>
+    <div class="grid" id="g5"></div>
     <canvas id="p5" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
-    <div class="h1" id="s5title" style="top:100px; font-size:84px;">A loop, not a switch.</div>
-    <div class="sub" id="s5sub" style="top:210px;">The headroom moves, so the boost moves with it.</div>
-    <div class="glass" id="gl5a" style="left:110px; top:330px; width:840px; height:640px;"><canvas id="c5a" class="abs" width="840" height="640" style="left:0;top:0"></canvas></div>
-    <div class="glass" id="gl5b" style="left:990px; top:330px; width:820px; height:640px;"><canvas id="c5b" class="abs" width="820" height="640" style="left:0;top:0"></canvas></div>
+    <div class="bloom" id="b5"></div>
+    <canvas id="h5" class="abs" width="1136" height="688" style="left:530px; top:60px; width:860px; height:521px; border-radius:26px; box-shadow:0 0 120px rgba(150,110,255,.4);"></canvas>
+    <div class="h1" id="s5title" style="top:640px; font-size:120px;"><span id="s5grad" style="background:linear-gradient(90deg,#5e5ce6,#bf5af2,#ff375f,#ff9f0a); -webkit-background-clip:text; background-clip:text; color:transparent;">XDR Boost</span></div>
+    <div class="sub" id="s5sub" style="top:790px; color:#c7c7cc; font-size:36px;">Your display already had the brightness. Now you can use it.</div>
+    <div class="mono" id="s5url" style="position:absolute; left:0; right:0; top:900px; text-align:center; color:#c7c7cc; font-size:28px;"></div>
   </section>
 
-  <!-- 6. end -->
-  <section class="scene dark" id="s6">
-    <div class="grid"></div>
-    <canvas id="p6" class="abs" width="1920" height="1080" style="left:0;top:0"></canvas>
-    <canvas id="h6" class="abs" width="1136" height="688" style="left:530px; top:60px; width:860px; height:521px; border-radius:26px; box-shadow:0 0 120px rgba(150,110,255,.4);"></canvas>
-    <div class="h1" id="s6title" style="top:640px; font-size:120px;"><span class="grad">XDR Boost</span></div>
-    <div class="sub" id="s6sub" style="top:790px; color:#c7c7cc; font-size:36px;">Your display already had the brightness. Now you can use it.</div>
-    <div class="tag" id="s6tag" style="left:0; right:0; top:900px; text-align:center; color:#64d2ff; font-size:26px;">github.com/fl03er/xdr-boost</div>
-  </section>
+  <div id="hud" class="mono">headroom <b id="hH" style="color:#64d2ff"></b> · boost <b id="hB"></b>× · <i>k</i> <b id="hK"></b> · <b id="hN"></b> nits</div>
+  <canvas id="fx" width="1920" height="1080"></canvas>
+  <svg class="cur" id="cur3" viewBox="0 0 28 40"><path d="M2 2 L2 31 L9 24.5 L13.8 35.5 L18.3 33.6 L13.6 22.8 L23 22.8 Z" fill="#000" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>
+  <svg class="cur" id="cur2" viewBox="0 0 28 40"><path d="M2 2 L2 31 L9 24.5 L13.8 35.5 L18.3 33.6 L13.6 22.8 L23 22.8 Z" fill="#000" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>
+  <svg class="cur" id="cur1" viewBox="0 0 28 40"><path d="M2 2 L2 31 L9 24.5 L13.8 35.5 L18.3 33.6 L13.6 22.8 L23 22.8 Z" fill="#000" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>
+  <svg class="cur" id="cur0" viewBox="0 0 28 40"><path d="M2 2 L2 31 L9 24.5 L13.8 35.5 L18.3 33.6 L13.6 22.8 L23 22.8 Z" fill="#000" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>
 </div>
 
 <script type="module">
+let resolveReady; window.ready = new Promise(r => resolveReady = r);
+// ---------- the math: every number on screen comes from here ----------
+const SDR_NITS = 500, PEAK_NITS = 1600, GAMMA = 2.5;
+const HEADROOM = PEAK_NITS / SDR_NITS;          // 3.2
+const SETTING = HEADROOM;                       // the slider at its top
+const LOOP_S = 0.5, OVERLAY_FPS = 5, PIXEL_V = 0.8, HEAD_LOW = 2.0;
+const kOf = L => Math.pow(L, 1 / GAMMA);        // overlay value for a light gain L
+const nitsOf = L => L * SDR_NITS;
+const f1 = v => v.toFixed(1), f2 = v => v.toFixed(2);
+const nitsStr = L => Math.round(nitsOf(L)).toLocaleString('en-US');
+for (const [a, b] of [[f2(HEADROOM), '3.20'], [f2(kOf(1)), '1.00'], [f2(kOf(2)), '1.32'], [f2(kOf(HEADROOM)), '1.59'], [kOf(2).toFixed(4), '1.3195'], [nitsStr(2), '1,000'], [nitsStr(HEADROOM), '1,600']])
+  if (a !== b) throw new Error(`math check: ${a} != ${b}`);
+
+// ---------- helpers ----------
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const seg = (t, a, b) => clamp((t - a) / (b - a));
-const eOut = x => 1 - Math.pow(1 - x, 3);
-const eInOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 const lerp = (a, b, x) => a + (b - a) * x;
+const eOut = x => 1 - Math.pow(1 - x, 3), eIn = x => x * x * x;
+const eInOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 const $ = id => document.getElementById(id);
-function rise(el, t, start, dur = 0.7, dist = 30, base = '') { const x = eOut(seg(t, start, start + dur)); el.style.opacity = x; el.style.transform = `${base} translateY(${(1 - x) * dist}px)`; }
+function spring(dt, k = 170, c = 22) {
+  if (dt <= 0) return 0;
+  const w0 = Math.sqrt(k), z = c / (2 * w0), wd = w0 * Math.sqrt(1 - z * z);
+  return 1 - Math.exp(-z * w0 * dt) * (Math.cos(wd * dt) + (z * w0 / wd) * Math.sin(wd * dt));
+}
+function rise(el, t, start, dist = 30) { el.style.opacity = clamp((t - start) / 0.25); el.style.transform = `translateY(${(1 - spring(t - start)) * dist}px)`; }
+function mtext(c, s, x, y, px, align = 'left', weight = '', draw = true) {
+  const parts = s.replace(/·/g, '⋅').match(/[A-Za-z]+|[^A-Za-z]+/g) || [];
+  const font = p => /^[kLvt]$/.test(p) ? `italic ${px * 1.05}px KaTeX_Math` : `${weight} ${px}px KaTeX_Main`;
+  let w = 0; for (const p of parts) { c.font = font(p); w += c.measureText(p).width; }
+  if (!draw) return w;
+  let cx = align === 'center' ? x - w / 2 : align === 'right' ? x - w : x; const al = c.textAlign; c.textAlign = 'left';
+  for (const p of parts) { c.font = font(p); c.fillText(p, cx, y); cx += c.measureText(p).width; }
+  c.textAlign = al; return w;
+}
+const MONO = '"SF Mono", Menlo, monospace', SANS = '-apple-system, "SF Pro Display", sans-serif';
 const DPR = Number(new URLSearchParams(location.search).get('dpr') || 1);
 for (const cv of document.querySelectorAll('canvas')) {
-  const lw = cv.width, lh = cv.height, hi = !/^p\d+$/.test(cv.id) ? DPR : 1;
-  cv.dataset.lw = lw; cv.dataset.lh = lh; cv.dataset.dpr = hi;
-  if (!cv.style.width) { cv.style.width = lw + 'px'; cv.style.height = lh + 'px'; }
+  const lw = cv.width, lh = cv.height, hi = /^p\d$/.test(cv.id) ? 1 : DPR;
+  cv.dataset.dpr = hi; if (!cv.style.width) { cv.style.width = lw + 'px'; cv.style.height = lh + 'px'; }
   cv.width = lw * hi; cv.height = lh * hi;
 }
-function clear(cv) { const c = cv.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); const d = +cv.dataset.dpr || 1; c.setTransform(d, 0, 0, d, 0, 0); return c; }
+function clear(cv) { const c = cv.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); const d = +cv.dataset.dpr; c.setTransform(d, 0, 0, d, 0, 0); c.globalAlpha = 1; return c; }
 function roundRect(c, x, y, w, h, r) { if (w < 0) w = 0; r = Math.min(r, w / 2, h / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
-const MONO = '"SF Mono", Menlo, monospace', SANS = 'Pretendard, -apple-system, sans-serif';
+const center = el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+function local(el, scene) { const r = el.getBoundingClientRect(), s = scene.getBoundingClientRect(), k = s.width / 1920; return [(r.left + r.width / 2 - s.left) / k, (r.top + r.height / 2 - s.top) / k]; }
 
-const SCENES = [
-  { id: 's1', a: 0.0, b: 4.8 }, { id: 's2', a: 4.4, b: 11.2 }, { id: 's3', a: 10.8, b: 17.6 },
-  { id: 's4', a: 17.2, b: 24.4 }, { id: 's5', a: 24.0, b: 30.0 }, { id: 's6', a: 29.6, b: 34.4 },
-];
-const FADE = 0.4;
-export const DURATION = 34.4;
-window.DURATION = DURATION;
+// Colour semantics: gray = SDR (<= 1.0); purple -> magenta -> orange maps light 1.0 -> 3.2.
+const STOPS = [[94, 92, 230], [191, 90, 242], [255, 55, 95], [255, 159, 10]];
+function valRGB(L) { const x = clamp((L - 1) / (HEADROOM - 1)) * 3, i = Math.min(2, Math.floor(x)), f = x - i; return STOPS[i].map((v, j) => Math.round(lerp(v, STOPS[i + 1][j], f))); }
+const valColor = (L, sdr = '#8e8e93') => L <= 1.0005 ? sdr : `rgb(${valRGB(L)})`;
+function gradV(c, x0, y0, x1, y1) { const g = c.createLinearGradient(x0, y0, x1, y1); STOPS.forEach((s, i) => g.addColorStop(i / 3, `rgb(${s})`)); return g; }
 
-let resolveReady; window.ready = new Promise(r => resolveReady = r);
-const load = src => new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(im); im.src = src; });
-const N = 92, pad3 = i => String(i).padStart(3, '0');
-const heroOn = await Promise.all(Array.from({ length: N }, (_, i) => load(`assets/hero/${pad3(i)}.jpg`)));
-function onFrame(since) { const i = since * 20; if (i <= N - 1) return Math.floor(i); const span = N - 1 - 30, pos = (i - (N - 1)) % (2 * span); return Math.round(pos <= span ? N - 1 - pos : N - 1 - (2 * span - pos)); }
+// Odometer: each digit is a rolling strip, never a cross-fade.
+function odo(el, v, dec = 2, int = 1, group = false) {
+  const key = `${dec}/${int}/${group}`;
+  if (el._key !== key) {
+    el._key = key; el.innerHTML = ''; el._cols = [];
+    for (let i = int - 1; i >= -dec; i--) {
+      const col = document.createElement('span'); col.className = 'od';
+      col.innerHTML = `<span class="ods">${'01234567890'.split('').map(d => `<span>${d}</span>`).join('')}</span>`;
+      el.appendChild(col); const entry = { i, col, strip: col.firstChild, sep: null }; el._cols.push(entry);
+      if (i === 0 && dec > 0) { const p = document.createElement('span'); p.className = 'odp'; p.textContent = '.'; el.appendChild(p); }
+      if (group && i > 0 && i % 3 === 0) { const p = document.createElement('span'); p.className = 'odp'; p.textContent = ','; el.appendChild(p); entry.sep = p; }
+    }
+  }
+  const s = Math.max(0, v) * 10 ** dec, n = Math.floor(s + 0.5), S = n + eInOut(clamp((s + 0.5 - n - 0.85) / 0.15));
+  for (const c of el._cols) {
+    const e = c.i + dec, p = 10 ** e, u = S / p, lower = S - Math.floor(u) * p;
+    let pos = Math.floor(u) % 10;
+    if (e === 0) pos = u % 10; else if (lower > p - 1) pos += lower - (p - 1);
+    c.strip.style.transform = `translateY(${-pos * 1.15}em)`;
+    const hide = c.i > 0 && Math.round(v) < 10 ** c.i;
+    c.col.style.display = hide ? 'none' : ''; if (c.sep) c.sep.style.display = hide ? 'none' : '';
+  }
+}
+// A value that is changing glows wherever it is shown.
+const glow = (el, d, col) => { const a = clamp(Math.abs(d) * 6); el.style.filter = a > 0.01 ? `drop-shadow(0 0 ${18 * a}px ${col})` : 'none'; };
 
-const PAL = ['#64d2ff', '#5e5ce6', '#bf5af2', '#ff375f', '#ff9f0a', '#30d158'];
-function sparks(cv, t, n = 70, strength = 1) {
+// Cursor paths: spring to each new target in turn, with a slight arc.
+function springPath(lt, keys) {
+  let x = keys[0][0 + 1], y = keys[0][2];
+  for (let i = 1; i < keys.length; i++) {
+    const s = spring(lt - keys[i][0], 90, 13), dx = keys[i][1] - keys[i - 1][1], dy = keys[i][2] - keys[i - 1][2], d = Math.hypot(dx, dy) || 1, arc = Math.sin(Math.PI * clamp(s)) * 0.06 * d;
+    x += dx * s - dy / d * arc; y += dy * s + dx / d * arc;
+  }
+  return [x, y];
+}
+
+const PAL = ['#5e5ce6', '#bf5af2', '#ff375f', '#ff9f0a', '#8e8e93'];
+function sparks(cv, t, n, strength) {
   const c = clear(cv);
   for (let i = 0; i < n; i++) {
     const s = Math.sin(i * 12.9898) * 43758.5453, r1 = s - Math.floor(s), s2 = Math.sin(i * 78.233) * 12345.678, r2 = s2 - Math.floor(s2);
     const x = (r1 * 1920 + t * (6 + r2 * 14)) % 1920, y = ((r2 * 1080 - t * (10 + r1 * 18)) % 1080 + 1080) % 1080;
-    c.fillStyle = PAL[i % PAL.length]; c.globalAlpha = (0.12 + 0.35 * Math.abs(Math.sin(t * (0.5 + r1) + i))) * strength;
-    c.shadowColor = PAL[i % PAL.length]; c.shadowBlur = 14; c.beginPath(); c.arc(x, y, 1.2 + r2 * 2.4, 0, 7); c.fill();
+    c.fillStyle = PAL[i % PAL.length]; c.globalAlpha = (0.1 + 0.3 * Math.abs(Math.sin(t * (0.5 + r1) + i))) * strength;
+    c.beginPath(); c.arc(x, y, 1.2 + r2 * 2.4, 0, 7); c.fill();
   }
+  c.globalAlpha = 1;
+}
+const setBloom = (el, L, x = 40, y = 60) => { const a = clamp((L - 1) / (HEADROOM - 1)); el.style.opacity = 0.85 * a; el.style.background = `radial-gradient(ellipse 45% 40% at ${x}% ${y}%, rgba(${valRGB(Math.max(L, 1.01))},.55), transparent 70%)`; };
+
+// ---------- timeline ----------
+const T1 = 4.0, T2 = 12.8, T3 = 22.4, T4 = 34.8, T5 = 44.8;
+const DURATION = 50.4; window.DURATION = DURATION;
+const SC = [{ id: 's0', a: 0, b: T1 + 0.6, dark: 1 }, { id: 's1', a: T1, b: T2 + 0.6 }, { id: 's2', a: T2, b: T3 + 0.6, dark: 1 },
+  { id: 's3', a: T3, b: T4 + 0.6 }, { id: 's4', a: T4, b: T5 + 0.6, dark: 1 }, { id: 's5', a: T5, b: DURATION, dark: 1 }];
+
+// chapter 01 geometry
+const C1 = { x: 200, y: 320, x0: 90, W: 1340, by: 196, bh: 84 };
+const px1 = v => C1.x0 + v / 3.4 * C1.W;
+function ch1Bar(lt) {
+  if (lt < 1.5) return { end: 0, wall: 0, cv: 1 };
+  if (lt < 2.3) return { end: Math.pow(seg(lt, 1.5, 2.3), 2), wall: 0, cv: 1 };
+  const d = lt - 2.3, bounce = Math.exp(-d * 6) * Math.abs(Math.sin(d * 18));
+  if (lt < 3.4) return { end: 1 - 0.04 * bounce, wall: bounce, cv: 1 };
+  const cv = 1 + 2.3 * eInOut(seg(lt, 3.4, 5.4));   // the cursor may pull past the peak; the bar may not
+  return { end: Math.min(cv, HEADROOM), wall: 0, cv };
+}
+// chapter 02 beats
+const B2 = { t1: 1.4, e1: 2.0, t2: 3.2, e2: 3.8, t3: 4.6, e3: 5.3, t4: 6.0, trace: 6.6, collapse: 8.0 };
+function ch2State(lt) {
+  const head = 1 + (HEADROOM - 1) * eInOut(seg(lt, B2.e1, B2.e1 + 1.2));
+  const k = lerp(1, kOf(SETTING), eInOut(seg(lt, B2.e3, B2.e3 + 0.6)));
+  return { head, k, boost: Math.pow(k, GAMMA), mult: eInOut(seg(lt, B2.collapse, B2.collapse + 0.8)) };
+}
+// chapter 03 geometry and drag
+const C3 = { x: 110, y: 320, ox: 100, oy: 560 };
+const X3 = l => C3.ox + (l - 1) / 2.2 * 760, Y3 = k => C3.oy - (k - 1) / 2.2 * 430;
+const PRESETS = [1.0, 2.0, HEADROOM], LP = 2.0;
+function ch3L(lt) {
+  if (lt < 2.7) return 1;
+  if (lt < 4.1) return lerp(1, 2, eInOut(seg(lt, 2.7, 4.1)));
+  if (lt < 4.6) return 2;
+  if (lt < 5.6) return lerp(2, HEADROOM, eInOut(seg(lt, 4.6, 5.6)));
+  if (lt < 7.35) return HEADROOM;
+  return HEADROOM + (LP - HEADROOM) * spring(lt - 7.35);
+}
+// chapter 04 simulation: tau is loop time in seconds, shown 4x slower than real time
+const SLOW = 4, TAU0 = 1.4, TDROP = 0.6, TSTOP = 1.45, OFF = [0, 0.0333, 0.0667, 0.1];
+const tauOf = lt => (lt - TAU0) / SLOW;
+const headTrue = tau => tau < TDROP ? HEADROOM : HEAD_LOW;
+const lastIter = (tau, node) => Math.floor((Math.min(tau, TSTOP) - OFF[node]) / LOOP_S);
+function iterVals(n) { const h = n < 0 ? HEADROOM : headTrue(n * LOOP_S), a = Math.min(SETTING, h); return { h, a, k: kOf(a) }; }
+function boostRun(tau) { const n = lastIter(tau, 2); return lerp(iterVals(n - 1).a, iterVals(n).a, eInOut(clamp((tau - (n * LOOP_S + OFF[2])) / 0.12))); }
+function boostAt(tau) { return tau < TSTOP ? boostRun(tau) : lerp(boostRun(TSTOP - 1e-6), 1, eInOut(seg(tau, TSTOP + 0.1, TSTOP + 0.3))); }
+const C4 = { x: 110, y: 330, cx: 420, cy: 300, rx: 260, ry: 200 };
+function loopP(tau) { const f = ((Math.max(0, tau) / LOOP_S) % 1 + 1) % 1; return f < 0.2 ? f / 0.2 * 0.75 : 0.75 + (f - 0.2) / 0.8 * 0.25; }
+const loopXY = p => { const a = -Math.PI / 2 + p * Math.PI * 2; return [C4.cx + C4.rx * Math.cos(a), C4.cy + C4.ry * Math.sin(a)]; };
+
+// anchors measured from the DOM once (see the end of the file)
+let OB = [700, 520], PD = [700, 700], LIT = [1290, 470];
+const TR = [
+  { t0: T1, from: 's0', to: 's1', A: () => [260 + 130, 720 + 70], B: () => [C1.x + px1(1), C1.y + 108], col: '#ffffff' },
+  { t0: T2, from: 's1', to: 's2', A: () => [C1.x + (px1(1) + px1(HEADROOM)) / 2, C1.y + C1.by + C1.bh / 2], B: () => OB, col: valColor(HEADROOM) },
+  { t0: T3, from: 's2', to: 's3', A: () => LIT, B: () => [C3.x + X3(HEADROOM), C3.y + Y3(kOf(HEADROOM))], col: valColor(HEADROOM) },
+  { t0: T4, from: 's3', to: 's4', A: () => [C3.x + X3(HEADROOM), C3.y + Y3(kOf(HEADROOM))], B: () => { const [x, y] = loopXY(0); return [C4.x + x, C4.y + y]; }, col: valColor(HEADROOM) },
+  { t0: T5, from: 's4', to: 's5', A: () => { const [x, y] = loopXY(loopP(TSTOP)); return [C4.x + x, C4.y + y]; }, B: () => [960, 330], col: '#bf5af2' },
+].map(r => ({ ...r, t1: r.t0 + 0.6 }));
+
+// ---------- the virtual user ----------
+const CLICKS = [[T1 - 0.3, 392, 792], [T1 + 3.3, C1.x + px1(1), C1.y + 238], [T3 + 2.6, C3.x + X3(1), C3.y + Y3(1)], [T3 + 7.3, 1480, 488]];
+function cursorAt(t) {
+  if (t < T1 + 0.6) { const lt = t;
+    const [x, y] = springPath(lt, [[0, 1560, 1180], [2.7, 392, 792]]);
+    return { x, y, a: seg(lt, 2.6, 2.8) * (1 - seg(lt, T1, T1 + 0.15)), down: lt > 3.7 && lt < 3.82 }; }
+  if (t < T2) { const lt = t - T1, gy = C1.y + C1.by + C1.bh / 2 + 4;
+    let p;
+    if (lt < 3.4) p = springPath(lt, [[0, 1250, 1000], [2.6, C1.x + px1(1) + 4, gy]]);
+    else if (lt < 5.5) p = [C1.x + px1(ch1Bar(lt).cv) + 4, gy];
+    else p = springPath(lt, [[0, C1.x + px1(3.3) + 4, gy], [5.8, 1790, 610]]);
+    return { x: p[0], y: p[1], a: seg(lt, 2.4, 2.7) * (1 - seg(lt, 8.2, 8.6)), down: lt > 3.25 && lt < 5.5 }; }
+  if (t < T3) { const lt = t - T2;
+    const [x, y] = springPath(lt, [[0, 1700, 1100], [2.0, 1650, 377], [3.8, 1560, 419], [5.3, LIT[0] + 40, LIT[1] + 10], [6.5, PD[0] + 8, PD[1] + 10], [8.1, 1040, 1080]]);
+    return { x, y, a: seg(lt, 1.9, 2.1) * (1 - seg(lt, 8.4, 8.8)), down: false }; }
+  if (t < T4) { const lt = t - T3, pt = L => [C3.x + X3(L), C3.y + Y3(kOf(L))];
+    let p;
+    if (lt < 2.7) p = springPath(lt, [[0, 1400, 1100], [1.9, ...pt(1)]]);
+    else if (lt < 5.7) p = pt(ch3L(lt));
+    else p = springPath(lt, [[0, ...pt(HEADROOM)], [5.85, 1480, 488], [7.9, 1060, 1060]]);
+    return { x: p[0], y: p[1], a: seg(lt, 1.8, 2.0) * (1 - seg(lt, 8.6, 9.0)), down: (lt > 2.6 && lt < 5.7) || (lt > 7.3 && lt < 7.42) }; }
+  if (t < T5) { const lt = t - T4;
+    const [x, y] = springPath(lt, [[0, 1700, 1100], [3.7, 1290, 430], [5.5, 575, 855], [7.2, 900, 1120]]);
+    return { x, y, a: seg(lt, 3.6, 3.8) * (1 - seg(lt, 7.4, 7.8)), down: false }; }
+  return { x: 0, y: 0, a: 0, down: false };
+}
+function drawCursor(t) {
+  for (let j = 0; j < 4; j++) {
+    const c = cursorAt(t - j / 150), el = $('cur' + j), v = Math.hypot(c.x - cursorAt(t - j / 150 - 1 / 60).x, c.y - cursorAt(t - j / 150 - 1 / 60).y);
+    const a = j === 0 ? c.a : c.a * clamp((v - 6) / 30) * [0, 0.22, 0.12, 0.06][j];
+    el.style.opacity = a; el.style.transform = `translate(${c.x - 2.1}px, ${c.y - 2.1}px) scale(${c.down ? 0.88 : 1})`; el.style.transformOrigin = '2px 2px';
+  }
+}
+
+// ---------- scenes ----------
+function placeScenes(t) {
+  SC.forEach((s, idx) => {
+    const el = $(s.id), vis = t >= s.a && t <= s.b;
+    el.style.display = vis ? 'block' : 'none'; if (!vis) return;
+    const d = 1 + (s.dark ? 0.03 : 0.012) * seg(t, s.a, s.b);
+    let op = 1, z = 1, P = [960, 540];
+    const out = TR.find(r => r.from === s.id && t >= r.t0), inn = TR.find(r => r.to === s.id && t <= r.t1);
+    if (out) { const p = seg(t, out.t0, out.t1); op = 1 - eIn(p); z = 1 + 0.8 * eInOut(p); P = out.A(); }
+    if (inn) { op = eOut(seg(t, inn.t0 + 0.12, inn.t1)); z = 0.86 + 0.14 * spring(t - inn.t0); P = inn.B(); }
+    el.style.opacity = op; el.style.zIndex = idx;
+    el.style.transform = `translate(${P[0]}px,${P[1]}px) scale(${z}) translate(${-P[0]}px,${-P[1]}px) translate(960px,540px) scale(${d}) translate(-960px,-540px)`;
+    const g = el.querySelector('.grid'); if (g) g.style.transform = `translate(${-(t - s.a) * 4}px, ${-(t - s.a) * 2}px)`;
+  });
+}
+
+function draw0(lt) {
+  sparks($('p0'), lt, 60, seg(lt, 0.5, 1.5));
+  rise($('s0tag'), lt, 0.3, 10); rise($('s0title'), lt, 0.5, 40); rise($('s0sub'), lt, 1.1, 24);
+  const c = clear($('pipe')), names = ['HEADROOM', 'EDR MODE', 'MULTIPLY', 'CONTROL LOOP'], xs = names.map((_, i) => 130 + i * 380);
+  const hover = clamp((lt - 3.3) / 0.2), press = lt > 3.7 ? 1 : 0;
+  c.lineWidth = 4;
+  for (let i = 0; i < 3; i++) {
+    const f = seg(lt, 1.5 + i * 0.45, 1.9 + i * 0.45);
+    c.strokeStyle = 'rgba(255,255,255,.14)'; c.beginPath(); c.moveTo(xs[i] + 70, 70); c.lineTo(xs[i + 1] - 70, 70); c.stroke();
+    c.strokeStyle = gradV(c, xs[i], 0, xs[i + 1], 0); c.beginPath(); c.moveTo(xs[i] + 70, 70); c.lineTo(lerp(xs[i] + 70, xs[i + 1] - 70, f), 70); c.stroke();
+  }
+  names.forEach((n, i) => {
+    const t0 = 1.3 + i * 0.45, a = clamp((lt - t0) / 0.25), sc = 0.8 + 0.2 * spring(lt - t0), on = i === 0 ? Math.max(hover, 0.4) : 0.4;
+    c.save(); c.globalAlpha = a; c.translate(xs[i], 70); c.scale(sc + (i === 0 ? 0.06 * hover - 0.04 * press : 0), sc);
+    c.fillStyle = `rgba(255,255,255,${0.06 + 0.08 * (i === 0 ? hover : 0)})`; c.strokeStyle = `rgba(255,255,255,${0.2 + 0.6 * on})`; c.lineWidth = 2;
+    roundRect(c, -70, -50, 140, 100, 24); c.fill(); c.stroke();
+    c.fillStyle = '#fff'; mtext(c, '0' + (i + 1), 0, 14, 42, 'center', 'bold'); c.restore();
+    const typed = n.slice(0, Math.floor(clamp((lt - t0 - 0.1) / 0.4) * n.length));
+    c.globalAlpha = a; c.fillStyle = '#a1a1a6'; c.font = `500 20px ${MONO}`; c.textAlign = 'center'; c.fillText(typed, xs[i], 160); c.globalAlpha = 1;
+  });
+}
+
+const EQ1 = ['\\mathrm{headroom}', '=', '\\dfrac{\\mathrm{peak}}{\\mathrm{SDR\\ white}}', '=', `\\dfrac{${PEAK_NITS}}{${SDR_NITS}}`, '=', f1(HEADROOM)];
+function draw1(lt) {
+  rise($('s1title'), lt, 0.15); rise($('s1sub'), lt, 0.4, 24); rise($('s1card'), lt, 0.6, 40);
+  const c = clear($('c1')), b = ch1Bar(lt), X = px1, { by, bh, x0 } = C1;
+  c.textAlign = 'center';
+  for (let i = 0; i <= 34; i += 2) {
+    const v = i / 10, major = i % 10 === 0;
+    c.globalAlpha = clamp((lt - 0.9 - v * 0.12) / 0.3); c.strokeStyle = major ? '#1d1d1f' : '#c7c7cc'; c.lineWidth = major ? 3 : 2;
+    c.beginPath(); c.moveTo(X(v), 92); c.lineTo(X(v), major ? 124 : 110); c.stroke();
+    if (major) { c.fillStyle = '#1d1d1f'; mtext(c, f1(v), X(v), 76, 32, 'center'); c.fillStyle = '#6e6e73'; mtext(c, nitsStr(v), X(v), 154, 23, 'center'); }
+  }
+  const pk = clamp((b.end - (HEADROOM - 0.08)) / 0.08);
+  c.globalAlpha = pk; c.fillStyle = valColor(HEADROOM); mtext(c, f1(HEADROOM), X(HEADROOM), 76, 32, 'center', 'bold'); mtext(c, nitsStr(HEADROOM), X(HEADROOM), 154, 23, 'center', 'bold');
+  c.globalAlpha = clamp((lt - 0.9) / 0.3); c.textAlign = 'left'; c.fillStyle = '#6e6e73'; c.font = `600 20px ${MONO}`; c.fillText('pixel value', x0, 40); c.fillText('nits', X(3.4) + 16, 154);
+  // the bar
+  c.globalAlpha = clamp((lt - 1.0) / 0.3); c.fillStyle = '#ececf0'; roundRect(c, x0, by, C1.W, bh, 24); c.fill();
+  if (b.end > 0.02) {
+    c.save(); roundRect(c, x0, by, X(b.end) - x0, bh, 24); c.clip();
+    c.fillStyle = '#1d1d1f'; c.fillRect(x0, by, X(Math.min(1, b.end)) - x0, bh);
+    if (b.end > 1) {
+      c.fillStyle = gradV(c, X(1), 0, X(HEADROOM), 0); c.fillRect(X(1), by, X(b.end) - X(1), bh);
+      const w = X(b.end) - X(1), sx = X(1) + ((lt * 340) % (w + 200)) - 100, sg = c.createLinearGradient(sx - 60, 0, sx + 60, 0);
+      sg.addColorStop(0, 'rgba(255,255,255,0)'); sg.addColorStop(.5, 'rgba(255,255,255,.4)'); sg.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = sg; c.fillRect(sx - 60, by, 120, bh);
+    }
+    c.restore();
+    c.fillStyle = '#fff'; c.font = `700 30px ${SANS}`; c.globalAlpha = clamp((b.end - 0.3) / 0.3); c.fillText('SDR', x0 + 30, by + 52);
+    c.globalAlpha = clamp((b.end - 1.6) / 0.3); c.fillText('EDR headroom', X(1) + 34, by + 52);
+  }
+  // the wall at SDR white, and the panel's peak
+  const wa = clamp((lt - 1.2) / 0.3) * (1 - 0.8 * clamp((b.end - 1) / 0.12)), wx = X(1) + 5 * b.wall;
+  c.globalAlpha = wa; c.fillStyle = '#1d1d1f'; roundRect(c, wx - 5, by - 22, 10, bh + 44, 5); c.fill();
+  c.globalAlpha = clamp((lt - 2.4) / 0.3); c.fillStyle = '#6e6e73'; c.font = `500 22px ${SANS}`; c.textAlign = 'right'; c.fillText('ordinary apps stop here', X(1) - 18, by + bh + 46);
+  c.globalAlpha = pk; c.strokeStyle = '#86868b'; c.lineWidth = 2; c.setLineDash([6, 6]); c.beginPath(); c.moveTo(X(HEADROOM), by - 22); c.lineTo(X(HEADROOM), by + bh + 22); c.stroke(); c.setLineDash([]);
+  mtext(c, `panel peak · ${nitsStr(HEADROOM)} nits`, X(HEADROOM) - 40, by + bh + 46, 23, 'center'); c.textAlign = 'center';
+  const br = clamp((lt - 5.6) / 0.4); c.globalAlpha = br; c.strokeStyle = '#86868b'; c.lineWidth = 3;
+  c.beginPath(); c.moveTo(X(1), 356); c.lineTo(X(1), 366); c.lineTo(X(HEADROOM), 366); c.lineTo(X(HEADROOM), 356); c.stroke();
+  c.fillStyle = '#1d1d1f'; c.font = `600 26px ${SANS}`; c.fillText('No ordinary app draws here.', (X(1) + X(HEADROOM)) / 2, 408); c.globalAlpha = 1;
+  // the hero number follows the bar end
+  rise($('h1box'), lt, 1.4, 20);
+  odo($('h1v'), b.end, 2, 1); odo($('h1n'), nitsOf(b.end), 0, 4, true);
+  $('h1v').style.color = valColor(b.end, '#1d1d1f');
+  const tLast = 5.8 + 0.28 * (EQ1.length - 1);
+  glow($('h1v'), b.end - ch1Bar(lt - 0.15).end + (lt > tLast ? Math.exp(-(lt - tLast) * 3) * 0.2 : 0), valColor(Math.max(b.end, 1.3)));
+  $('eq1').style.opacity = clamp((lt - 5.7) / 0.25);
+  [...$('eq1').children].forEach((el, i) => rise(el, lt, 5.8 + 0.28 * i, 16));
+  rise($('n1'), lt, 7.2, 14);
+}
+
+function draw2(lt) {
+  const S = $('s2'), st = ch2State(lt);
+  sparks($('p2'), lt, 40, 0.8); setBloom($('b2'), 1 + st.mult * (st.boost - 1), 33, 62);
+  rise($('s2title'), lt, 0.15); rise($('s2sub'), lt, 0.4, 24);
+  // the layer stack: output, desktop, overlay; exploded, then collapsed by "multiply"
+  const base = 'rotateX(55deg) rotateZ(-35deg)';
+  ['lyX', 'lyD', 'lyO'].forEach((id, i) => {
+    const z = lerp([0, 150, 290][i], [0, 8, 16][i], st.mult), a = clamp((lt - 0.6 - 0.12 * (2 - i)) / 0.3), lift = (1 - spring(lt - 0.6 - 0.12 * (2 - i))) * 80;
+    $(id).style.opacity = a; $(id).style.transform = `${base} translateZ(${z + lift}px)`;
+  });
+  const rim = eInOut(seg(lt, B2.e1, B2.e1 + 0.6)), fill = eInOut(seg(lt, B2.e3, B2.e3 + 0.6));
+  $('lyO').style.border = rim > 0.01 ? `3px solid rgba(${valRGB(1 + 2.2 * rim)},${0.4 + 0.5 * rim})` : '3px dashed rgba(255,255,255,.4)';
+  $('lyO').style.boxShadow = `0 0 ${70 * rim}px rgba(191,90,242,${0.6 * rim})`;
+  $('lyOf').style.background = `rgba(${valRGB(st.boost)},${0.16 * fill})`;
+  const out = st.mult * (st.boost - 1) / (HEADROOM - 1);
+  $('lyXd').style.filter = `brightness(${1 + 0.55 * out}) saturate(${1 + 0.15 * out})`;
+  $('lyX').style.boxShadow = `0 0 ${130 * out}px rgba(255,170,230,${0.55 * out})`;
+  // labels sit beside each plane's left edge
+  [['tgO', 'kO'], ['tgD', 'kD'], ['tgX', 'kX']].forEach(([tg, k], i) => {
+    const [x, y] = local($(k), S); $(tg).style.left = (x - 26) + 'px'; $(tg).style.top = y + 'px'; $(tg).style.opacity = clamp((lt - 1.0 - 0.1 * i) / 0.3) * (i < 2 ? 1 - st.mult : 1);
+  });
+  $('tgOb').style.color = rim > 0.5 ? valColor(HEADROOM) : '#f5f5f7';
+  $('tgOi').textContent = lt < B2.e3 ? 'invisible window' : `value ${f2(kOf(SETTING))} everywhere`;
+  $('tgXi').textContent = st.mult < 0.5 ? 'compositor output' : 'desktop × overlay → EDR';
+  const sw = eInOut(seg(lt, B2.e2, B2.e2 + 0.4));
+  $('sw0').style.transform = `translateY(${-sw * 32}px)`; $('sw1').style.transform = `translateY(${(1 - sw) * 32}px)`;
+  // code, typed line by line; each line lights what it changes
+  rise($('code2'), lt, 0.8, 30); rise($('gauge2'), lt, 1.0, 30);
+  const k = f2(kOf(SETTING));
+  const lines = [[['layer.wantsExtendedDynamicRangeContent = '], ['true', '#64d2ff']],
+    [['layer.pixelFormat = '], ['.rgba16Float', '#bf5af2']],
+    [['clear = ('], [k, valColor(SETTING), 'lit159'], [', '], [k, valColor(SETTING)], [', '], [k, valColor(SETTING)], [')'], ['   // > 1.0', '#636366']],
+    [['layer.compositingFilter = '], ['"multiply"', '#ff9f0a']]];
+  const starts = [B2.t1, B2.t2, B2.t3, B2.t4], litPulse = Math.exp(-Math.max(0, lt - B2.e3) * 2.5) * (lt > B2.e3);
+  $('code2t').innerHTML = lines.map((segs, i) => {
+    let n = Math.floor(clamp((lt - starts[i]) / 0.5) * segs.reduce((s, x) => s + x[0].length, 0)), html = `<span class="g">${i + 1}  </span>`;
+    for (const [txt, col, id] of segs) {
+      const s = txt.slice(0, Math.max(0, n)).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); n -= txt.length;
+      const sh = id ? `;text-shadow:0 0 ${24 * litPulse}px ${col}` : '';
+      html += col || id ? `<span${id ? ` id="${id}"` : ''} style="color:${col}${sh}">${s}</span>` : s;
+      if (n <= 0 && !id) { if (n < 0) break; }
+    }
+    return html;
+  }).join('\n');
+  const act = lt < B2.t1 ? -1 : lt < B2.t2 ? 0 : lt < B2.t3 ? 1 : lt < B2.t4 ? 2 : 3;
+  $('hl2').style.opacity = act < 0 ? 0 : 1 - 0.6 * st.mult; $('hl2').style.top = (26 + 42 * Math.max(0, act)) + 'px';
+  // the measured headroom (hero number)
+  odo($('g2v'), st.head, 2, 1); $('g2v').style.color = valColor(st.head, '#8e8e93');
+  glow($('g2v'), st.head - ch2State(lt - 0.15).head, valColor(Math.max(st.head, 1.3)));
+  $('g2b').style.width = (st.head / HEADROOM * 100) + '%';
+  // one desktop pixel travels through the stack
+  const c = clear($('t2')), tr = lt - B2.trace;
+  if (tr > 0) {
+    const pD = local($('mD'), S), pO = local($('mO'), S), pX = local($('mX'), S), fade = 1 - st.mult;
+    const ring = (p, col, a, r = 16) => { c.globalAlpha = a * fade; c.strokeStyle = col; c.lineWidth = 3; c.beginPath(); c.arc(p[0], p[1], r, 0, 7); c.stroke(); c.fillStyle = col; c.beginPath(); c.arc(p[0], p[1], 5, 0, 7); c.fill(); };
+    const label = (p, txt, col, a, dx = 30, dy = 0) => { c.globalAlpha = a * fade; const w = mtext(c, txt, 0, 0, 25, 'left', '', false) + 28; if (dx < 0) dx = -w / 2; c.fillStyle = 'rgba(14,14,18,.94)'; roundRect(c, p[0] + dx, p[1] - 22 + dy, w, 44, 14); c.fill(); c.fillStyle = col; mtext(c, txt, p[0] + dx + 14, p[1] + 8 + dy, 25); };
+    ring(pD, '#c7c7cc', clamp(tr / 0.25)); label(pD, `pixel v = ${f2(PIXEL_V)}`, '#c7c7cc', clamp((tr - 0.1) / 0.25));
+    const up = seg(tr, 0.3, 0.7); c.globalAlpha = fade; c.strokeStyle = 'rgba(255,255,255,.5)'; c.setLineDash([6, 6]); c.lineWidth = 2;
+    c.beginPath(); c.moveTo(pD[0], pD[1]); c.lineTo(lerp(pD[0], pO[0], up), lerp(pD[1], pO[1], up)); c.stroke(); c.setLineDash([]);
+    ring(pO, valColor(SETTING), clamp((tr - 0.6) / 0.2)); label(pO, `× k = ${k}`, valColor(SETTING), clamp((tr - 0.7) / 0.25));
+    const dn = seg(tr, 0.8, 1.3), res = PIXEL_V * kOf(SETTING);
+    if (dn > 0) { c.globalAlpha = fade; c.strokeStyle = valColor(Math.pow(res, GAMMA)); c.lineWidth = 3; c.beginPath(); c.moveTo(pO[0], pO[1]); c.lineTo(lerp(pO[0], pX[0], dn), lerp(pO[1], pX[1], dn)); c.stroke();
+      c.shadowColor = valColor(Math.pow(res, GAMMA)); c.shadowBlur = 20; c.fillStyle = '#fff'; c.beginPath(); c.arc(lerp(pO[0], pX[0], dn), lerp(pO[1], pX[1], dn), 7, 0, 7); c.fill(); c.shadowBlur = 0; }
+    ring(pX, valColor(Math.pow(res, GAMMA)), clamp((tr - 1.3) / 0.2), 20);
+    label(pX, `${f2(PIXEL_V)} × ${k} = ${f2(res)}  > 1.0 → EDR`, valColor(Math.pow(res, GAMMA)), clamp((tr - 1.35) / 0.25), -1, 64);
+    c.globalAlpha = 1;
+  }
+}
+
+function draw3(lt) {
+  const L = ch3L(lt), k = kOf(L);
+  rise($('s3title'), lt, 0.15); rise($('s3sub'), lt, 0.4, 24); rise($('s3card'), lt, 0.6, 40);
+  const c = clear($('c3')), { ox, oy } = C3;
+  c.globalAlpha = clamp((lt - 0.9) / 0.3); c.strokeStyle = '#ececf0'; c.lineWidth = 2; c.font = `500 20px ${MONO}`; c.fillStyle = '#6e6e73';
+  for (const v of [1, 1.5, 2, 2.5, 3]) {
+    c.beginPath(); c.moveTo(ox, Y3(v)); c.lineTo(ox + 790, Y3(v)); c.stroke(); mtext(c, f1(v), ox - 12, Y3(v) + 8, 23, 'right');
+    c.beginPath(); c.moveTo(X3(v), oy); c.lineTo(X3(v), oy - 440); c.stroke(); mtext(c, f1(v) + '×', X3(v), oy + 36, 23, 'center');
+  }
+  c.textAlign = 'left'; mtext(c, 'gain L (light)', X3(2.4), oy + 70, 24);
+  const draw = eOut(seg(lt, 1.0, 2.0)), curve = (fn, upto) => { c.beginPath(); for (let l = 1; l <= upto + 1e-6; l += 0.02) { const x = X3(l), y = Y3(fn(l)); l === 1 ? c.moveTo(x, y) : c.lineTo(x, y); } };
+  c.globalAlpha = 1; c.setLineDash([12, 10]); c.strokeStyle = '#ff375f'; c.lineWidth = 4; curve(l => l, lerp(1, HEADROOM, draw)); c.stroke(); c.setLineDash([]);
+  c.save(); c.strokeStyle = gradV(c, X3(1), 0, X3(HEADROOM), 0); c.lineWidth = 7; c.shadowColor = 'rgba(191,90,242,.5)'; c.shadowBlur = 16; curve(kOf, lerp(1, HEADROOM, draw)); c.stroke(); c.restore();
+  c.globalAlpha = clamp((lt - 2.0) / 0.3); c.fillStyle = '#ff375f'; mtext(c, 'k = L  overshoots, channels clip, hues shift', X3(1.15), Y3(2.75), 24);
+  const endA = clamp((lt - 2.0) / 0.3) + Math.exp(-Math.max(0, lt - 12.1) * 4) * (lt > 12.1);
+  c.globalAlpha = clamp(endA); c.save(); c.shadowColor = valColor(HEADROOM); c.shadowBlur = 24; c.fillStyle = valColor(HEADROOM); c.beginPath(); c.arc(X3(HEADROOM), Y3(kOf(HEADROOM)), 9, 0, 7); c.fill(); c.restore();
+  $('klab3').style.opacity = clamp((lt - 2.0) / 0.3);
+  // the dragged point, and the naive point at the same gain
+  const a = clamp((lt - 1.6) / 0.3), x = X3(L), y = Y3(k);
+  c.globalAlpha = a * 0.8; c.strokeStyle = '#ff375f'; c.lineWidth = 3; c.beginPath(); c.arc(x, Y3(L), 10, 0, 7); c.stroke();
+  c.globalAlpha = a; c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 2; c.setLineDash([6, 6]); c.beginPath(); c.moveTo(x, oy); c.lineTo(x, y); c.lineTo(ox, y); c.stroke(); c.setLineDash([]);
+  c.fillStyle = valColor(L, '#1d1d1f'); c.shadowColor = 'rgba(0,0,0,.3)'; c.shadowBlur = 12; c.beginPath(); c.arc(x, y, 14, 0, 7); c.fill(); c.shadowBlur = 0;
+  const tipTxt = `L = ${f2(L)} → k = ${f2(k)}`, tw = mtext(c, tipTxt, 0, 0, 25, 'left', '', false) + 36;
+  c.fillStyle = '#1d1d1f'; roundRect(c, x - tw / 2, y + 30, tw, 46, 23); c.fill(); c.fillStyle = '#fff'; mtext(c, tipTxt, x, y + 61, 25, 'center'); c.textAlign = 'left'; c.globalAlpha = 1;
+  odo($('h3v'), k, 2, 1); $('h3v').style.color = valColor(L, '#1d1d1f'); glow($('h3v'), (k - kOf(ch3L(lt - 0.15))) * 2, valColor(Math.max(L, 1.3)));
+  // presets: the active one lights up; the hovered one shows its formula
+  const hov = lt > 6.3 && lt < 7.9 ? 1 : 0;
+  PRESETS.forEach((P, i) => {
+    const el = $('r' + i), on = Math.abs(L - P) < 0.03 || (i === 1 && hov);
+    el.style.opacity = clamp((lt - 1.2 - 0.2 * i) / 0.25);
+    el.style.transform = `translateY(${(1 - spring(lt - 1.2 - 0.2 * i)) * 30}px) scale(${on ? 1.025 : 1})`;
+    el.style.boxShadow = on ? `0 0 0 3px ${valColor(P, '#1d1d1f')}, 0 12px 40px rgba(0,0,0,.1)` : '';
+  });
+  $('tip3').style.opacity = clamp((lt - 6.4) / 0.2) * (1 - clamp((lt - 7.8) / 0.2)); $('tip3').style.transform = `translate(-50%, ${(1 - spring(lt - 6.4)) * 10}px)`;
+  // proof at 2.0x: naive vs correct, per channel
+  const pIn = clamp((lt - 7.7) / 0.25) * (1 - clamp((lt - 9.4) / 0.3));
+  $('proof3').style.opacity = pIn; $('proof3').style.transform = `translate(${-30 * seg(lt, 9.4, 9.7)}px, ${(1 - spring(lt - 7.7)) * 30}px)`;
+  if (pIn > 0) drawProof(lt - 7.7);
+  // derivation
+  $('der3').style.opacity = clamp((lt - 9.55) / 0.25); $('der3').style.transform = `translateY(${(1 - spring(lt - 9.55)) * 30}px)`;
+  const T = DER.tok, fly = (el, from, to, t0, appear = 0.2) => { const s = spring(lt - t0); el.style.opacity = clamp((lt - t0) / appear); el.style.transform = `translate(${lerp(from[0], to[0], s)}px, ${lerp(from[1], to[1], s)}px)`; };
+  fly(T.A, DER.A, DER.A, 9.8); fly(T.B, [DER.A[0] + DER.wA - 50, DER.A[1] - 14], DER.B, 10.1);
+  fly(T.C, DER.C, DER.C, 10.5); fly(T.D, [DER.B[0] + DER.kOff, DER.B[1]], DER.D, 10.5); fly(T.E, DER.E, DER.E, 10.7);
+  fly(T.F1, DER.D, DER.F1, 11.0); fly(T.F2, DER.E, DER.F2, 11.0);
+}
+const SKIN = [0.87, 0.67, 0.55], ORANGE = [1.0, 0.55, 0.10];
+function shown(rgb, k) {          // hue of the output: clip at the headroom, normalise brightness back to the input's
+  const ceil = kOf(HEADROOM), lin = rgb.map(v => Math.pow(Math.min(k * v, ceil), GAMMA)), orig = rgb.map(v => Math.pow(v, GAMMA));
+  const s = Math.max(...orig) / Math.max(...lin);
+  return `rgb(${lin.map(v => Math.round(255 * Math.pow(v * s, 1 / GAMMA))).join(',')})`;
+}
+function drawProof(pt) {
+  const c = clear($('c3p')), ceil = kOf(HEADROOM), sc = v => 246 - v / 2.1 * 118;
+  [[LP, 24, true], [kOf(LP), 362, false]].forEach(([k, x0, naive], ci) => {
+    [SKIN, ORANGE].forEach((rgb, j) => {
+      const gx = x0 + j * 160, a = clamp((pt - 0.2 - 0.15 * (2 * ci + j)) / 0.25);
+      c.globalAlpha = a; c.fillStyle = shown(rgb, k); roundRect(c, gx, 62, 56, 56, 14); c.fill();
+      c.strokeStyle = 'rgba(0,0,0,.08)'; c.lineWidth = 1; c.stroke();
+      rgb.forEach((v, ch) => {
+        const bx = gx + 72 + ch * 24, val = Math.min(k * v, 2.1) * clamp((pt - 0.3 - 0.15 * (2 * ci + j)) / 0.5);
+        c.fillStyle = '#86868b'; c.fillRect(bx, sc(Math.min(val, 1)), 16, 246 - sc(Math.min(val, 1)));
+        if (val > 1) { c.fillStyle = gradV(c, 0, sc(1), 0, sc(ceil)); c.fillRect(bx, sc(Math.min(val, ceil)), 16, sc(1) - sc(Math.min(val, ceil))); }
+        if (val > ceil) { c.save(); c.beginPath(); c.rect(bx, sc(val), 16, sc(ceil) - sc(val)); c.clip(); c.strokeStyle = '#ff375f'; c.lineWidth = 3; for (let h = -20; h < 140; h += 7) { c.beginPath(); c.moveTo(bx - 4, sc(val) + h); c.lineTo(bx + 20, sc(val) + h - 24); c.stroke(); } c.restore(); }
+        c.fillStyle = '#6e6e73'; c.font = `500 15px ${MONO}`; c.textAlign = 'center'; c.fillText('RGB'[ch], bx + 8, 264); c.textAlign = 'left';
+      });
+      c.strokeStyle = '#1d1d1f'; c.setLineDash([4, 4]); c.lineWidth = 1.5; c.beginPath(); c.moveTo(gx + 66, sc(ceil)); c.lineTo(gx + 150, sc(ceil)); c.stroke(); c.setLineDash([]);
+    });
+    c.globalAlpha = clamp((pt - 0.9) / 0.3); c.font = `600 18px ${SANS}`; c.fillStyle = naive ? '#ff375f' : '#1d1d1f';
+    c.fillText(naive ? 'channels clip → hue shifts' : 'ratios kept → hue preserved', x0, 290);
+  });
+  c.globalAlpha = clamp((pt - 0.6) / 0.3); c.fillStyle = '#6e6e73'; mtext(c, `ceiling ${f2(ceil)}`, 596, sc(ceil) - 6, 16);
+  c.strokeStyle = '#ff375f'; c.setLineDash([10, 8]); c.lineWidth = 3; c.globalAlpha = 0.9 * clamp(pt / 0.3); roundRect(c, 10, 8, 330, 284, 18); c.stroke(); c.setLineDash([]); c.globalAlpha = 1;
+}
+
+function draw4(lt) {
+  const tau = tauOf(lt), st = Math.min(tau, TSTOP), ca = $('c4a'), boost = boostAt(tau);
+  sparks($('p4'), lt + 5, 40, 0.8); setBloom($('b4'), boost, 30, 55);
+  rise($('s4title'), lt, 0.15); rise($('s4sub'), lt, 0.4, 24); rise($('gl4a'), lt, 0.6, 40); rise($('gl4b'), lt, 0.8, 40);
+  let c = clear(ca); const { cx, cy, rx, ry } = C4, stopped = tau >= TSTOP;
+  c.lineWidth = 4; c.strokeStyle = 'rgba(255,255,255,.14)'; c.beginPath(); c.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); c.stroke();
+  const nodes = [['SENSE', 'read headroom'], ['CLAMP', 'min(setting, headroom)'], ['APPLY', 'set overlay value'], ['WAIT', 'until next check']];
+  { const [tx, ty] = loopXY(loopP(st)), ta = clamp((lt - 0.5) / 0.3) * (stopped ? 0.35 : 1) * (1 - seg(lt, 10.0, 10.1));
+    c.globalAlpha = ta; c.save(); c.shadowColor = valColor(boostRun(st)); c.shadowBlur = 30; c.fillStyle = '#fff'; c.beginPath(); c.arc(tx, ty, 12, 0, 7); c.fill(); c.restore(); c.globalAlpha = 1; }
+  nodes.forEach(([n, d], i) => {
+    const [x, y] = loopXY(i * 0.25), it = lastIter(Math.max(tau, 0), i), v = iterVals(tau < 0 ? -1 : it), tp = it * LOOP_S + OFF[i];
+    const on = tau >= 0 && !stopped ? Math.exp(-Math.max(0, st - tp) * SLOW * 2.5) : 0;
+    c.fillStyle = 'rgba(20,20,26,.96)'; c.strokeStyle = `rgba(200,180,255,${0.25 + 0.7 * on})`; c.lineWidth = 2; c.shadowColor = 'rgba(160,120,255,.9)'; c.shadowBlur = 36 * on;
+    roundRect(c, x - 130, y - 58, 260, 116, 24); c.fill(); c.stroke(); c.shadowBlur = 0;
+    c.textAlign = 'center'; c.fillStyle = '#fff'; c.font = `700 28px ${SANS}`; c.fillText(n, x, y - 18); c.fillStyle = '#8e8e93'; c.font = `500 16px ${MONO}`; c.fillText(d, x, y + 8);
+    const live = [`headroom ${f2(v.h)}`, `min(${f1(SETTING)}, ${f2(v.h)}) = ${f1(v.a)}`, `k = ${f2(v.k)}`, `${LOOP_S} s`][i];
+    c.fillStyle = ['#64d2ff', '#f5f5f7', valColor(v.a), '#c7c7cc'][i]; mtext(c, live, x, y + 42, 23, 'center');
+  });
+  c.fillStyle = '#c7c7cc'; mtext(c, `every ${LOOP_S} s`, cx, cy - 4, 27, 'center'); c.fillStyle = '#636366'; mtext(c, `shown ${SLOW}× slower`, cx, cy + 24, 19, 'center');
+  c.textAlign = 'left';
+  odo($('ts4'), clamp(tau, 0, 2), 2, 1);
+  // timeline: measured headroom (cyan), applied boost (gradient), frames sent
+  c = clear($('c4b')); const left = 80, right = 780, TX = x => left + x / 2.0 * (right - left), VY = L => 380 - (L - 1) / 2.4 * 280, now = clamp(tau, 0, 2);
+  c.font = `600 19px ${MONO}`; c.fillStyle = '#64d2ff'; c.fillText('● headroom (measured)', left, 50); c.fillStyle = valColor(2.2); c.fillText('━ applied boost', left + 300, 50);
+  c.strokeStyle = 'rgba(255,255,255,.08)'; c.lineWidth = 2; c.fillStyle = '#8e8e93'; c.font = `500 17px ${MONO}`; c.textAlign = 'right';
+  for (const L of [1, HEAD_LOW, HEADROOM]) { c.beginPath(); c.moveTo(left, VY(L)); c.lineTo(right, VY(L)); c.stroke(); mtext(c, f1(L) + '×', left - 10, VY(L) + 7, 21, 'right'); }
+  for (let x = 0; x <= 2.0001; x += 0.5) mtext(c, f1(x) + ' s', TX(x), 540, 21, 'center');
+  c.save(); c.beginPath(); c.rect(left - 10, 60, TX(now) - left + 10, 470); c.clip();
+  c.strokeStyle = '#64d2ff'; c.lineWidth = 3; c.beginPath(); c.moveTo(TX(0), VY(HEADROOM)); c.lineTo(TX(TDROP), VY(HEADROOM)); c.lineTo(TX(TDROP), VY(HEAD_LOW)); c.lineTo(TX(2), VY(HEAD_LOW)); c.stroke();
+  for (let n = 0; n * LOOP_S <= Math.min(now, TSTOP); n++) { c.fillStyle = '#64d2ff'; c.beginPath(); c.arc(TX(n * LOOP_S), VY(headTrue(n * LOOP_S)), 7, 0, 7); c.fill(); }
+  c.beginPath(); for (let x = 0; x <= 2.0001; x += 0.005) { const yy = VY(boostAt(x)); x === 0 ? c.moveTo(TX(x), yy) : c.lineTo(TX(x), yy); }
+  c.strokeStyle = gradV(c, 0, VY(1), 0, VY(HEADROOM)); c.lineWidth = 6; c.shadowColor = 'rgba(191,90,242,.7)'; c.shadowBlur = 14; c.stroke(); c.shadowBlur = 0;
+  for (let m = 0; m * (1 / OVERLAY_FPS) < TSTOP; m++) { const x = m / OVERLAY_FPS; c.fillStyle = '#bf5af2'; roundRect(c, TX(x) - 3, 440, 6, 56, 3); c.fill(); }
+  c.restore();
+  c.fillStyle = '#8e8e93'; c.textAlign = 'left'; mtext(c, `frames sent · ${OVERLAY_FPS} fps`, left, 428, 20);
+  c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = 2; c.beginPath(); c.moveTo(TX(now), 60); c.lineTo(TX(now), 510); c.stroke();
+  if (tau > TDROP) { const a = clamp((tau - TDROP) * SLOW / 0.3), txt = '↓ reported by macOS'; c.globalAlpha = a; c.font = `600 16px ${MONO}`; const w = c.measureText(txt).width + 24, x0 = TX(TDROP) - 12 - w;
+    c.fillStyle = 'rgba(100,210,255,.16)'; roundRect(c, x0, VY(2.6) - 17, w, 34, 10); c.fill(); c.fillStyle = '#64d2ff'; c.textAlign = 'left'; c.fillText(txt, x0 + 12, VY(2.6) + 6); c.globalAlpha = 1; }
+  const firstSense = Math.ceil(TDROP / LOOP_S) * LOOP_S;
+  const status = tau < TDROP ? [`re-checking every ${LOOP_S} s`, '#c7c7cc'] : tau < firstSense + OFF[2] ? ['headroom dropped · waiting for the next SENSE', '#c7c7cc']
+    : tau < TSTOP ? [`next SENSE caught it → boost ${f1(Math.min(SETTING, HEAD_LOW))}×`, valColor(HEAD_LOW)] : ['stop drawing → macOS falls back to SDR', '#f5f5f7'];
+  c.fillStyle = status[1]; mtext(c, status[0], left, 588, 28);
+  if (stopped) { const a = clamp((tau - TSTOP) * SLOW / 0.4); c.globalAlpha = a; c.fillStyle = '#8e8e93'; mtext(c, 'thermal ≥ serious → overlay closes', left, 624, 21);
+    c.font = `600 18px ${SANS}`; const w = c.measureText('safe by design').width + 30; c.strokeStyle = 'rgba(255,255,255,.4)'; c.lineWidth = 1.5; roundRect(c, right - w, 600, w, 34, 17); c.stroke(); c.fillStyle = '#f5f5f7'; c.fillText('safe by design', right - w + 15, 623); c.globalAlpha = 1; }
+  $('tip4').style.opacity = clamp((lt - 5.9) / 0.2) * (1 - clamp((lt - 7.3) / 0.2)); $('tip4').style.transform = `translateY(${(1 - spring(lt - 5.9)) * 10}px)`;
+}
+
+const N5 = 92, pad3 = i => String(i).padStart(3, '0');
+const load = src => new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(im); im.src = src; });
+const heroOn = await Promise.all(Array.from({ length: N5 }, (_, i) => load(`assets/hero/${pad3(i)}.jpg`)));
+function onFrame(since) { const i = since * 20; if (i <= N5 - 1) return Math.floor(i); const span = N5 - 1 - 30, pos = (i - (N5 - 1)) % (2 * span); return Math.round(pos <= span ? N5 - 1 - pos : N5 - 1 - (2 * span - pos)); }
+const URL_TXT = 'github.com/fl03er/xdr-boost';
+function draw5(lt) {
+  sparks($('p5'), lt + 2, 90, 1.2); setBloom($('b5'), 1 + 1.6 * eInOut(seg(lt, 0.4, 2.0)), 50, 32);
+  const c = clear($('h5')); c.drawImage(heroOn[onFrame(lt + 1.2)], 0, 0, 1136, 688); $('h5').style.opacity = eOut(seg(lt, 0.2, 1.0));
+  rise($('s5title'), lt, 0.6, 40); rise($('s5sub'), lt, 1.3, 24);
+  $('s5grad').style.filter = `brightness(${1 + 0.25 * eInOut(seg(lt, 0.8, 2.4))}) drop-shadow(0 0 ${30 * seg(lt, 0.8, 2.4)}px rgba(255,160,220,.5))`;
+  const n = Math.floor(seg(lt, 2.0, 3.0) * URL_TXT.length); $('s5url').textContent = URL_TXT.slice(0, n) + (lt > 2.0 && lt < 3.6 && Math.floor(lt * 3) % 2 ? '▍' : ' ');
+}
+
+// ---------- HUD: the system's state, chapters 02-04 ----------
+function hudState(t) {
+  if (t < T3) { const s = ch2State(t - T2); return { h: s.head, b: s.boost, k: s.k }; }
+  const blend = (prev, cur, lt) => { const e = eInOut(seg(lt, 0, 1.2)); return { h: lerp(prev.h, cur.h, e), b: lerp(prev.b, cur.b, e), k: lerp(prev.k, cur.k, e) }; };
+  if (t < T4) { const L = ch3L(t - T3); return blend(hudState(T3 - 1e-3), { h: HEADROOM, b: L, k: kOf(L) }, t - T3); }
+  const tau = tauOf(t - T4), b = boostAt(tau), h = iterVals(tau < 0 ? -1 : lastIter(tau, 0)).h;
+  return blend({ h: HEADROOM, b: LP, k: kOf(LP) }, { h, b, k: kOf(b) }, t - T4);
+}
+function drawHud(t) {
+  const el = $('hud'), a = seg(t, T2 + 0.6, T2 + 0.9) * (1 - seg(t, T5, T5 + 0.3));
+  el.style.opacity = a; if (a <= 0) return;
+  const s = hudState(t), p = hudState(t - 0.15);
+  odo($('hH'), s.h, 2, 1); odo($('hB'), s.b, 1, 1); odo($('hK'), s.k, 2, 1); odo($('hN'), nitsOf(s.b), 0, 4, true);
+  $('hB').style.color = $('hK').style.color = $('hN').style.color = valColor(s.b, '#f5f5f7');
+  glow($('hH'), s.h - p.h, '#64d2ff'); glow($('hB'), s.b - p.b, valColor(Math.max(s.b, 1.3))); glow($('hK'), (s.k - p.k) * 2, valColor(Math.max(s.b, 1.3))); glow($('hN'), (s.b - p.b), valColor(Math.max(s.b, 1.3)));
+}
+
+// ---------- tokens that carry one chapter into the next ----------
+function drawFx(t) {
+  const c = clear($('fx'));
+  for (const r of TR) if (t >= r.t0 && t <= r.t1 + 0.3) {
+    const A = r.A(), B = r.B(), p = seg(t, r.t0, r.t1);
+    for (let j = 7; j >= 0; j--) {
+      const pj = clamp(p - j * 0.03), e = eInOut(pj), x = lerp(A[0], B[0], e), y = lerp(A[1], B[1], e) - Math.sin(Math.PI * e) * 70;
+      c.globalAlpha = (1 - j / 8) * (1 - seg(t, r.t1, r.t1 + 0.3)); c.shadowColor = r.col; c.shadowBlur = 30; c.fillStyle = j ? r.col : '#fff';
+      c.beginPath(); c.arc(x, y, (9 + 9 * Math.sin(Math.PI * pj)) * (1 - j / 10), 0, 7); c.fill();
+    }
+    const q = seg(t, r.t1, r.t1 + 0.4); if (q > 0 && q < 1) { c.globalAlpha = 1 - q; c.strokeStyle = r.col; c.lineWidth = 3; c.beginPath(); c.arc(B[0], B[1], 12 + 50 * eOut(q), 0, 7); c.stroke(); }
+  }
+  for (const [tc, x, y] of CLICKS) { const q = seg(t, tc, tc + 0.45); if (q > 0 && q < 1) { c.globalAlpha = 0.6 * (1 - q); c.shadowBlur = 0; c.strokeStyle = '#8e8e93'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 8 + 34 * eOut(q), 0, 7); c.stroke(); } }
   c.globalAlpha = 1; c.shadowBlur = 0;
 }
-const GRAD = (c, x0, x1) => { const g = c.createLinearGradient(x0, 0, x1, 0); g.addColorStop(0, '#5e5ce6'); g.addColorStop(.35, '#bf5af2'); g.addColorStop(.7, '#ff375f'); g.addColorStop(1, '#ff9f0a'); return g; };
 
-document.querySelectorAll('.kx').forEach(e => katex.render(e.dataset.tex, e, { throwOnError: false }));
+// ---------- static content built from the math ----------
+const tex = (el, s) => katex.render(s, el, { throwOnError: false });
+EQ1.forEach(s => { const e = document.createElement('span'); e.className = 'kx'; tex(e, s); $('eq1').appendChild(e); });
+$('rows3').innerHTML = PRESETS.map((P, i) => `<div class="pcard" id="r${i}" style="top:${320 + i * 112}px"><div class="a">${f1(P)}×</div><div class="c" style="color:${valColor(P, '#1d1d1f')}">${f2(kOf(P))}</div><div class="d">overlay value · ${nitsStr(P)} nits</div></div>`).join('');
+tex($('klab3'), 'k=L^{1/2.5}');
+tex($('tip3'), `${f1(LP)}^{1/2.5}=${kOf(LP).toFixed(4)}`); Object.assign($('tip3').style, { left: '1480px', top: '370px' });
+tex($('pf0'), `k=L=${f2(LP)}`); tex($('pf1'), `k=L^{1/2.5}=${f2(kOf(LP))}`);
+tex($('tip4'), `k=${f1(HEAD_LOW)}^{1/2.5}=${f2(kOf(HEAD_LOW))}`); Object.assign($('tip4').style, { left: '590px', top: '890px' });
+const DER = { tok: {} };
+[['A', '\\mathrm{light}=(k\\,v)^{2.5}', 38], ['B', '=k^{2.5}\\,v^{2.5}', 38], ['C', '\\text{want}\\ ', 38], ['D', 'k^{2.5}', 38], ['E', '=L', 38], ['F1', 'k=', 54], ['F2', 'L^{1/2.5}', 54]].forEach(([n, s, size]) => {
+  const e = document.createElement('div'); e.className = 'tok kx'; e.style.fontSize = size + 'px'; e.style.color = n[0] === 'F' ? '#5e5ce6' : '#1d1d1f';
+  if (n[0] === 'F') Object.assign(e.style, { background: 'linear-gradient(90deg,#5e5ce6,#bf5af2,#ff375f,#ff9f0a)', webkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' });
+  tex(e, s); $('der3').appendChild(e); DER.tok[n] = e;
+});
+await Promise.all(['20px KaTeX_Main', 'bold 20px KaTeX_Main', 'italic 20px KaTeX_Math'].map(f => document.fonts.load(f))); await document.fonts.ready;
+{ $('s3').style.display = 'block'; const w = n => DER.tok[n].offsetWidth, eqW = (() => { const e = document.createElement('span'); e.className = 'kx'; e.style.fontSize = '38px'; e.style.position = 'absolute'; tex(e, '='); $('der3').appendChild(e); const v = e.offsetWidth; e.remove(); return v; })();
+  DER.wA = w('A'); DER.kOff = eqW + 8;
+  DER.A = [40, 34]; DER.B = [40 + w('A') + 12, 34]; DER.C = [40, 118]; DER.D = [40 + w('C') + 6, 118]; DER.E = [DER.D[0] + w('D') + 8, 118]; DER.F1 = [40, 196]; DER.F2 = [40 + w('F1') + 6, 196];
+  $('s3').style.display = 'none'; }
+
 window.renderAt = function (t) {
-  for (const s of SCENES) {
-    const el = $(s.id), vis = t >= s.a && t <= s.b;
-    el.style.display = vis ? 'block' : 'none';
-    if (!vis) continue;
-    const fin = s.a === 0 ? 1 : eOut(seg(t, s.a, s.a + FADE)), fout = s.b >= DURATION ? 1 : 1 - seg(t, s.b - FADE, s.b);
-    el.style.opacity = Math.min(fin, fout); el.style.transform = `scale(${1.03 - 0.03 * fin})`; el.style.zIndex = Math.round(s.a * 10);
-  }
-
-  // 1. title with the four-step pipeline
-  if (t <= 4.8) {
-    const lt = t;
-    sparks($('p1'), lt, 60, seg(lt, 0.5, 1.5));
-    rise($('s1tag'), lt, 0.3, 0.8, 10); rise($('s1title'), lt, 0.5, 0.9, 40); rise($('s1sub'), lt, 1.2, 0.9, 24);
-    const c = clear($('pipe')), names = ['HEADROOM', 'EDR MODE', 'MULTIPLY', 'CONTROL LOOP'], W = 1400;
-    const xs = names.map((_, i) => 130 + i * ((W - 260) / 3));
-    const prog = seg(lt, 1.6, 3.6) * 3;
-    c.lineWidth = 4;
-    for (let i = 0; i < 3; i++) {
-      const f = clamp(prog - i); c.strokeStyle = 'rgba(255,255,255,.14)'; c.beginPath(); c.moveTo(xs[i] + 70, 70); c.lineTo(xs[i + 1] - 70, 70); c.stroke();
-      c.strokeStyle = GRAD(c, xs[i], xs[i + 1]); c.shadowColor = 'rgba(191,90,242,.9)'; c.shadowBlur = 16;
-      c.beginPath(); c.moveTo(xs[i] + 70, 70); c.lineTo(lerp(xs[i] + 70, xs[i + 1] - 70, f), 70); c.stroke(); c.shadowBlur = 0;
-    }
-    names.forEach((n, i) => {
-      const a = eOut(seg(lt, 1.3 + i * 0.3, 1.9 + i * 0.3)), on = clamp(prog - i + 1);
-      c.globalAlpha = a; c.fillStyle = 'rgba(255,255,255,.06)'; c.strokeStyle = `rgba(160,130,255,${0.25 + 0.6 * on})`; c.lineWidth = 2;
-      c.shadowColor = 'rgba(130,100,255,.8)'; c.shadowBlur = 30 * on; roundRect(c, xs[i] - 70, 20, 140, 100, 26); c.fill(); c.stroke(); c.shadowBlur = 0;
-      c.fillStyle = '#fff'; c.font = `700 40px ${SANS}`; c.textAlign = 'center'; c.fillText('0' + (i + 1), xs[i], 82);
-      c.fillStyle = '#a1a1a6'; c.font = `500 20px ${MONO}`; c.fillText(n, xs[i], 160); c.globalAlpha = 1;
-    });
-  }
-
-  // 2. pixels stop at 1.0
-  if (t >= 4.4 && t <= 11.2) {
-    const lt = t - 4.4;
-    rise($('s2title'), lt, 0.2); rise($('s2sub'), lt, 0.45); rise($('s2card'), lt, 0.7, 0.8, 40);
-    const c = clear($('c2')), x0 = 90, px = v => x0 + v / 3.4 * 1340;
-    c.textAlign = 'center';
-    for (let i = 0; i <= 34; i += 2) {
-      const v = i / 10, major = i % 10 === 0, a = eOut(seg(lt, 0.9 + v * 0.1, 1.4 + v * 0.1));
-      c.globalAlpha = a; c.strokeStyle = major ? '#1d1d1f' : '#c7c7cc'; c.lineWidth = major ? 3 : 2;
-      c.beginPath(); c.moveTo(px(v), 96); c.lineTo(px(v), major ? 128 : 114); c.stroke();
-      if (major) { c.fillStyle = '#1d1d1f'; c.font = `600 28px ${MONO}`; c.fillText(v.toFixed(1), px(v), 76); c.fillStyle = '#6e6e73'; c.font = `500 20px ${MONO}`; c.fillText(Math.round(v * 500).toLocaleString('en-US'), px(v), 160); }
-    }
-    c.globalAlpha = 1; c.textAlign = 'left'; c.fillStyle = '#6e6e73'; c.font = `600 20px ${MONO}`; c.fillText('pixel value', 90, 40); c.fillText('nits  (value × 500)', 90, 194);
-    const sdr = eOut(seg(lt, 1.3, 2.2)), edr = eOut(seg(lt, 2.6, 4.2));
-    c.fillStyle = '#ececf0'; roundRect(c, x0, 200, 1340, 90, 24); c.fill();
-    c.fillStyle = '#1d1d1f'; roundRect(c, x0, 200, (px(1) - x0) * sdr, 90, 24); c.fill();
-    if (edr > 0) {
-      c.save(); c.shadowColor = 'rgba(191,90,242,.55)'; c.shadowBlur = 30; c.fillStyle = GRAD(c, px(1), px(3.2)); roundRect(c, px(1) - 4, 200, (px(3.2) - px(1)) * edr + 4, 90, 24); c.fill(); c.restore();
-      const w = (px(3.2) - px(1)) * edr, sx = px(1) + ((lt * 340) % (w + 200)) - 100, sg = c.createLinearGradient(sx - 60, 0, sx + 60, 0);
-      sg.addColorStop(0, 'rgba(255,255,255,0)'); sg.addColorStop(.5, 'rgba(255,255,255,.45)'); sg.addColorStop(1, 'rgba(255,255,255,0)');
-      c.save(); roundRect(c, px(1) - 4, 200, w + 4, 90, 24); c.clip(); c.fillStyle = sg; c.fillRect(sx - 60, 200, 120, 90); c.restore();
-    }
-    c.fillStyle = '#fff'; c.font = `700 30px ${SANS}`; c.globalAlpha = sdr; c.fillText('SDR', x0 + 30, 257); c.globalAlpha = edr; c.fillText('EDR headroom', px(1) + 40, 257); c.globalAlpha = 1;
-    const ca = eOut(seg(lt, 1.8, 2.6)); c.globalAlpha = ca; c.strokeStyle = '#ff375f'; c.lineWidth = 3; c.setLineDash([10, 8]); c.beginPath(); c.moveTo(px(1), 176); c.lineTo(px(1), 330); c.stroke(); c.setLineDash([]);
-    c.fillStyle = '#ff375f'; c.font = `600 22px ${MONO}`; c.fillText('SDR WHITE = 1.0', px(1) + 14, 326); c.globalAlpha = 1;
-    const br = eOut(seg(lt, 4.0, 4.8)); c.globalAlpha = br; c.strokeStyle = '#86868b'; c.lineWidth = 3;
-    c.beginPath(); c.moveTo(px(1), 360); c.lineTo(px(1), 372); c.lineTo(px(3.2), 372); c.lineTo(px(3.2), 360); c.stroke();
-    c.fillStyle = '#6e6e73'; c.font = `500 26px ${SANS}`; c.textAlign = 'center'; c.fillText('No ordinary app draws here', (px(1) + px(3.2)) / 2, 412); c.textAlign = 'left'; c.globalAlpha = 1;
-    const fb = eOut(seg(lt, 4.8, 5.5)); $('bdg').style.opacity = fb; $('bdg').style.transform = `translateY(${(1 - fb) * 14}px)`;
-  }
-
-  // 3. wake the HDR mode
-  if (t >= 10.8 && t <= 17.6) {
-    const lt = t - 10.8;
-    sparks($('p3'), lt, 40, 0.8);
-    rise($('s3title'), lt, 0.2); rise($('s3sub'), lt, 0.45);
-    const appear = eOut(seg(lt, 0.7, 1.5)), drop = eInOut(seg(lt, 1.8, 3.2)), z = lerp(300, 36, drop), lit = eInOut(seg(lt, 3.0, 4.4));
-    const base = 'rotateX(58deg) rotateZ(-30deg)';
-    $('lyD').style.opacity = appear; $('lyD').style.transform = `${base} translateZ(0px)`;
-    $('lyD').style.filter = `brightness(${1 + 0.7 * lit})`; $('lyD').style.boxShadow = `0 0 ${120 * lit}px rgba(255,190,240,${0.55 * lit})`;
-    $('lyO').style.opacity = appear; $('lyO').style.transform = `${base} translateZ(${z}px)`;
-    rise($('tO'), lt, 1.0, 0.6, 10); rise($('tD'), lt, 1.0, 0.6, 10);
-    $('tO').style.top = (330 + (1 - drop) * -70) + 'px';
-    // code, typed line by line
-    const lines = ['layer.wantsExtendedDynamicRangeContent = true', 'layer.pixelFormat = .rgba16Float', 'clear = (1.59, 1.59, 1.59)   // above 1.0', 'layer.compositingFilter = "multiply"'];
-    const hl = ['wantsExtendedDynamicRangeContent', 'rgba16Float', '1.59', '"multiply"'];
-    rise($('code3'), lt, 0.9, 0.7, 30);
-    $('code3t').innerHTML = lines.map((l, i) => { const n = Math.floor(clamp((lt - (1.6 + i * 0.7)) / 0.6) * l.length); const s = l.slice(0, n).replace(/&/g, '&amp;').replace(/</g, '&lt;'); return `<span style="opacity:${n ? 1 : 0}">${s.replace(hl[i], `<span style="color:${['#64d2ff', '#ff9f0a', '#ff9f0a', '#bf5af2'][i]}">${hl[i]}</span>`)}</span>`; }).join('\n');
-    rise($('gauge3'), lt, 1.2, 0.7, 30);
-    const g = lt < 3.6 ? 1.0 : lerp(1.0, 3.2, eInOut(seg(lt, 3.6, 5.0)));
-    $('g3v').textContent = g.toFixed(2); $('g3b').style.width = (g / 3.2 * 100) + '%'; $('g3v').style.color = g > 1.05 ? '#fff' : '#8e8e93';
-  }
-
-  // 4. multiply, in the right space
-  if (t >= 17.2 && t <= 24.4) {
-    const lt = t - 17.2;
-    rise($('s4title'), lt, 0.2); rise($('s4sub'), lt, 0.45); rise($('s4card'), lt, 0.7, 0.8, 40);
-    ['r1', 'r2', 'r3'].forEach((id, i) => { rise($(id), lt, 1.2 + i * 0.25, 0.7, 30); });
-    rise($('f4'), lt, 3.4, 0.8, 30);
-    const L = lt < 1.6 ? 1 : lt < 3.4 ? lerp(1, 2, eInOut(seg(lt, 1.6, 3.4))) : lt < 4.0 ? 2 : lerp(2, 3.2, eInOut(seg(lt, 4.0, 5.6)));
-    const c = clear($('c4')), ox = 100, oy = 560, X = l => ox + (l - 1) / 2.2 * 760, Y = k => oy - (k - 1) / 2.2 * 430;
-    c.strokeStyle = '#ececf0'; c.lineWidth = 2; c.font = `500 20px ${MONO}`; c.fillStyle = '#6e6e73';
-    for (const v of [1, 1.5, 2, 2.5, 3]) { c.beginPath(); c.moveTo(ox, Y(v)); c.lineTo(ox + 790, Y(v)); c.stroke(); c.textAlign = 'right'; c.fillText(v.toFixed(1), ox - 12, Y(v) + 7); c.beginPath(); c.moveTo(X(v), oy); c.lineTo(X(v), oy - 440); c.stroke(); c.textAlign = 'center'; c.fillText(v.toFixed(1) + '×', X(v), oy + 34); }
-    c.textAlign = 'left'; c.fillStyle = '#6e6e73'; c.font = `600 21px ${MONO}`; c.fillText('overlay value k', 30, 56); c.fillText('gain L (light)', X(2.4), oy + 68);
-    const draw = eOut(seg(lt, 0.8, 2.0));
-    const curve = (fn, upto) => { c.beginPath(); for (let l = 1; l <= upto + 1e-6; l += 0.02) { const x = X(l), y = Y(fn(l)); l === 1 ? c.moveTo(x, y) : c.lineTo(x, y); } };
-    c.setLineDash([12, 10]); c.strokeStyle = '#ff375f'; c.lineWidth = 4; curve(l => l, lerp(1, 3.2, draw)); c.stroke(); c.setLineDash([]);
-    c.save(); c.strokeStyle = GRAD(c, X(1), X(3.2)); c.lineWidth = 7; c.shadowColor = 'rgba(191,90,242,.6)'; c.shadowBlur = 18; curve(l => Math.pow(l, 1 / 2.5), lerp(1, 3.2, draw)); c.stroke(); c.restore();
-    c.globalAlpha = eOut(seg(lt, 2.0, 2.8)); c.fillStyle = '#ff375f'; c.font = `600 21px ${SANS}`; c.fillText('k = L  overshoots, channels clip, hues shift', X(1.15), Y(2.75));
-    c.globalAlpha = 1; $('klab').style.opacity = eOut(seg(lt, 2.0, 2.8));
-    // the moving point
-    const k = Math.pow(L, 1 / 2.5), px = X(L), py = Y(k), a = eOut(seg(lt, 1.4, 1.9));
-    c.globalAlpha = a; c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 2; c.setLineDash([6, 6]); c.beginPath(); c.moveTo(px, oy); c.lineTo(px, py); c.lineTo(ox, py); c.stroke(); c.setLineDash([]);
-    c.fillStyle = '#1d1d1f'; c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 14; c.beginPath(); c.arc(px, py, 14, 0, 7); c.fill(); c.shadowBlur = 0;
-    c.fillStyle = '#1d1d1f'; roundRect(c, px - 110, py - 78, 220, 48, 24); c.fill(); c.fillStyle = '#fff'; c.font = `600 22px ${MONO}`; c.textAlign = 'center'; c.fillText(`L ${L.toFixed(2)} → k ${k.toFixed(2)}`, px, py - 46); c.textAlign = 'left'; c.globalAlpha = 1;
-    ['r1', 'r2', 'r3'].forEach((id, i) => { const on = Math.abs(L - [1, 2, 3.2][i]) < 0.08; $(id).style.outline = on ? '3px solid #5e5ce6' : '3px solid transparent'; $(id).style.transform += ` scale(${on ? 1.03 : 1})`; });
-  }
-
-  // 5. a loop, not a switch
-  if (t >= 24.0 && t <= 30.0) {
-    const lt = t - 24.0;
-    sparks($('p5'), lt + 5, 40, 0.8);
-    rise($('s5title'), lt, 0.2); rise($('s5sub'), lt, 0.45); rise($('gl5a'), lt, 0.7, 0.8, 40); rise($('gl5b'), lt, 0.9, 0.8, 40);
-    // loop diagram
-    let c = clear($('c5a')); const cx = 420, cy = 330, R = 200;
-    const nodes = [['SENSE', 'read headroom'], ['CLAMP', 'min(setting, headroom)'], ['APPLY', 'set overlay value'], ['WAIT', '0.5 s']];
-    const pos = nodes.map((_, i) => { const a = -Math.PI / 2 + i * Math.PI / 2; return [cx + R * 1.15 * Math.cos(a), cy + R * Math.sin(a)]; });
-    const cyc = (lt * 0.5) % 1, head = cyc * 4;
-    c.lineWidth = 4; c.strokeStyle = 'rgba(255,255,255,.14)'; c.beginPath(); c.ellipse(cx, cy, R * 1.15, R, 0, 0, Math.PI * 2); c.stroke();
-    const ang = -Math.PI / 2 + head * Math.PI / 2, dx = cx + R * 1.15 * Math.cos(ang), dy = cy + R * Math.sin(ang);
-    c.save(); c.shadowColor = '#bf5af2'; c.shadowBlur = 30; c.fillStyle = '#fff'; c.beginPath(); c.arc(dx, dy, 11, 0, 7); c.fill(); c.restore();
-    nodes.forEach(([n, d], i) => {
-      const on = Math.max(0, 1 - Math.abs(((head - i + 2 + 4) % 4) - 2) * 1.2), [x, y] = pos[i];
-      c.fillStyle = 'rgba(20,20,26,.95)'; c.strokeStyle = `rgba(160,130,255,${0.3 + 0.7 * on})`; c.lineWidth = 2; c.shadowColor = 'rgba(130,100,255,.9)'; c.shadowBlur = 36 * on;
-      roundRect(c, x - 135, y - 46, 270, 92, 26); c.fill(); c.stroke(); c.shadowBlur = 0;
-      c.textAlign = 'center'; c.fillStyle = '#fff'; c.font = `700 30px ${SANS}`; c.fillText(n, x, y - 4); c.fillStyle = '#a1a1a6'; c.font = `500 17px ${MONO}`; c.fillText(d, x, y + 28);
-    });
-    c.fillStyle = '#8e8e93'; c.font = `500 22px ${MONO}`; c.fillText('every 0.5 s', cx, cy + 8); c.textAlign = 'left';
-    // keep-alive chart
-    c = clear($('c5b')); const W = 820, left = 50, right = W - 50, T0 = lt, win = 6;
-    const phase = tt => tt < 1.6 ? 'draw' : tt < 3.4 ? 'stop' : 'draw';
-    const bright = tt => { if (tt < 0) return 1; let v = 1; if (tt >= 1.6 && tt < 3.4) v = tt < 2.2 ? 1 : lerp(1, 0.3, eOut(seg(tt, 2.2, 2.9))); else if (tt >= 3.4) v = lerp(0.3, 1, eInOut(seg(tt, 3.4, 3.9))); return v; };
-    c.fillStyle = '#8e8e93'; c.font = `600 21px ${MONO}`; c.fillText('brightness', left, 56); c.fillText('frames sent', left, 400);
-    const X = tt => left + (tt / 6) * (right - left);
-    c.strokeStyle = 'rgba(255,255,255,.1)'; c.lineWidth = 2; c.beginPath(); c.moveTo(left, 80); c.lineTo(right, 80); c.moveTo(left, 330); c.lineTo(right, 330); c.stroke();
-    c.save(); c.beginPath(); c.rect(left, 60, X(Math.min(6, lt)) - left, 300); c.clip();
-    c.beginPath(); for (let tt = 0; tt <= 6; tt += 0.03) { const y = 330 - bright(tt) * 240; tt === 0 ? c.moveTo(X(tt), y) : c.lineTo(X(tt), y); }
-    c.strokeStyle = '#64d2ff'; c.lineWidth = 5; c.shadowColor = 'rgba(100,210,255,.9)'; c.shadowBlur = 14; c.stroke(); c.shadowBlur = 0; c.restore();
-    for (let k = 0; k * 0.2 < 6; k++) { const tk = k * 0.2; if (tk > lt) break; if (tk >= 1.6 && tk < 3.4) continue; c.fillStyle = '#bf5af2'; c.shadowColor = 'rgba(191,90,242,.9)'; c.shadowBlur = 10; roundRect(c, X(tk) - 3, 430, 6, 70, 3); c.fill(); c.shadowBlur = 0; }
-    const st = lt < 1.6 ? ['redraw at 5 fps', '#30d158'] : lt < 3.4 ? ['stop drawing → macOS falls back to SDR', '#ff375f'] : ['resume → brightness is back', '#30d158'];
-    c.fillStyle = st[1]; c.font = `600 26px ${SANS}`; c.fillText(st[0], left, 575);
-    c.fillStyle = '#8e8e93'; c.font = `500 20px ${MONO}`; c.fillText('thermal ≥ serious → overlay closes', left, 612);
-  }
-
-  // 6. end
-  if (t >= 29.6) {
-    const lt = t - 29.6;
-    sparks($('p6'), lt + 2, 90, 1.2);
-    const c = clear($('h6')); c.drawImage(heroOn[onFrame(lt + 1.2)], 0, 0, 1136, 688); $('h6').style.opacity = eOut(seg(lt, 0.2, 1.0));
-    rise($('s6title'), lt, 0.6, 0.9, 40); rise($('s6sub'), lt, 1.3, 0.9, 24); rise($('s6tag'), lt, 2.0, 0.8, 12);
-  }
+  placeScenes(t);
+  if (t <= T1 + 0.6) draw0(t);
+  if (t >= T1 && t <= T2 + 0.6) draw1(t - T1);
+  if (t >= T2 && t <= T3 + 0.6) draw2(t - T2);
+  if (t >= T3 && t <= T4 + 0.6) draw3(t - T3);
+  if (t >= T4 && t <= T5 + 0.6) draw4(t - T4);
+  if (t >= T5) draw5(t - T5);
+  drawHud(t); drawFx(t); drawCursor(t);
 };
+// measure the DOM anchors once, with the scenes laid out as they will be at those moments
+window.renderAt(T2 + 1.5); OB = center($('cO'));
+window.renderAt(T2 + B2.trace + 0.2); PD = center($('mD'));
+window.renderAt(T3 - 0.01); LIT = center($('lit159'));
 resolveReady();
 </script>
 </body>

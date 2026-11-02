@@ -38,4 +38,4 @@ for (let i = 0; i < n; i++) {
 ff.stdin.end();
 await new Promise(r => ff.on('close', r));
 await browser.close(); server.close();
-console.error('wrote', OUT);
+console.error('wrote', OUT); process.exit(0);
