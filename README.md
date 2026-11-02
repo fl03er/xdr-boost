@@ -17,9 +17,9 @@ https://github.com/user-attachments/assets/7e192ed7-0a43-49e5-8e55-1b1c20194747
 
 ## How it works
 
-A 34-second walkthrough of the idea (the details are written out below):
+A 50-second walkthrough of the idea (the details are written out below):
 
-https://github.com/user-attachments/assets/1f5a90cb-58c6-4078-a89a-c8458783b967
+https://github.com/user-attachments/assets/23a04b96-d8f8-48ae-9f8e-43a7454c816d
 
 1. A transparent, click-through window covers the **built-in display** and draws EDR content (a value above 1.0).
    macOS sees HDR content and puts the panel into EDR mode.
