@@ -23,7 +23,7 @@ https://github.com/user-attachments/assets/7e192ed7-0a43-49e5-8e55-1b1c20194747
 
 원리를 50초로 풀어 본 영상입니다(영어, 자세한 설명은 아래에 있습니다):
 
-https://github.com/user-attachments/assets/23a04b96-d8f8-48ae-9f8e-43a7454c816d
+https://github.com/user-attachments/assets/2361435e-d432-4f71-a5c0-109e5d2b471e
 
 1. 클릭이 통과되는 투명 창이 **내장 디스플레이**를 덮고 EDR(값 > 1.0) 콘텐츠를 그립니다.
    macOS는 이를 HDR 콘텐츠로 보고 화면을 EDR 모드로 바꿉니다.
