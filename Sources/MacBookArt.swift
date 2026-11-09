@@ -147,8 +147,8 @@ enum MacBookArt {
         return path
     }
 
-    /// The screen's light: a fan from the lid's left edge out to `reach` (a point far to the left), in the wallpaper's
-    /// magenta, orange and violet, slowly drifting, fading with distance. Screen-blended, so it brightens what it hits.
+    /// The screen's light: a fan from the lid's left edge out to `reach` (a point far to the left), in silver
+    /// with faint ice-blue, gold and blush tints, slowly drifting, fading with distance. Screen-blended, so it brightens what it hits.
     static func drawLight(_ ctx: CGContext, laptop r: CGRect, toLeft x: CGFloat, top: CGFloat, floor: CGFloat, level: Double, t: Double) {
         guard level > 0 else { return }
         let edge = screenEdge(in: r), srgb = CGColorSpace(name: CGColorSpace.sRGB)
@@ -163,7 +163,7 @@ enum MacBookArt {
         ctx.clip()
         // Bands of colour across the fan, drifting up and down.
         let drift = 0.12 * sin(t * 0.7)
-        let hues: [(Double, Double, Double)] = [(0.55, 0.30, 1.0), (0.95, 0.25, 0.60), (1.0, 0.55, 0.25), (0.95, 0.30, 0.55), (0.45, 0.35, 0.95)]
+        let hues: [(Double, Double, Double)] = [(0.62, 0.72, 1.0), (0.80, 0.84, 0.95), (0.96, 0.90, 0.80), (0.90, 0.78, 0.90), (0.58, 0.68, 0.98)]
         // The top of the fan fades out, so it has no hard edge across the sky.
         let colors = hues.enumerated().map { i, c in
             CGColor(srgbRed: c.0, green: c.1, blue: c.2, alpha: (i == 0 ? 0 : 0.55) * level)

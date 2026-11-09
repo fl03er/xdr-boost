@@ -101,8 +101,8 @@ final class PanelView: NSView {
             ctx.drawLinearGradient(g, start: CGPoint(x: 0, y: h.minY), end: CGPoint(x: 0, y: h.maxY), options: [])
         }
         if level > 0 {
-            for (c, r, col) in [(CGPoint(x: h.minX + 30, y: h.maxY - 10), 90.0, (0.25, 0.75, 0.65)),
-                                (CGPoint(x: h.maxX - 20, y: h.maxY), 90.0, (0.55, 0.4, 0.95))] {
+            for (c, r, col) in [(CGPoint(x: h.minX + 30, y: h.maxY - 10), 90.0, (0.55, 0.70, 0.95)),
+                                (CGPoint(x: h.maxX - 20, y: h.maxY), 90.0, (0.80, 0.72, 0.88))] {
                 let colors = [CGColor(srgbRed: col.0, green: col.1, blue: col.2, alpha: 0.28 * level),
                               CGColor(srgbRed: col.0, green: col.1, blue: col.2, alpha: 0)] as CFArray
                 if let g = CGGradient(colorsSpace: srgb, colors: colors, locations: nil) {
@@ -140,7 +140,7 @@ final class PanelView: NSView {
 
         if level > 0 {
             for (i, (x, y, r)) in [(0.06, 0.78, 4.0), (0.46, 0.86, 3.5), (0.50, 0.30, 3.0), (0.30, 0.92, 2.5)].enumerated() {
-                let colors = [(1.0, 0.5, 0.85), (0.45, 0.9, 0.9), (0.7, 0.6, 1.0)]
+                let colors = [(0.95, 0.96, 1.0), (0.70, 0.82, 1.0), (0.95, 0.85, 0.92)]
                 let c = colors[i % colors.count], tw = 0.55 + 0.45 * sin(t * 2.2 + Double(i) * 1.9)
                 GhostArt.sparkle(ctx, at: CGPoint(x: h.minX + x * h.width, y: h.minY + y * h.height), r: r * tw,
                                  color: CGColor(srgbRed: c.0, green: c.1, blue: c.2, alpha: level * (0.5 + 0.5 * tw)))

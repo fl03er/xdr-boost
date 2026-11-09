@@ -2,7 +2,7 @@ import AppKit
 
 /// The ghost, after the user's illustration: a bell-shaped sheet ghost with big oval eyes and a rainbow pouring out
 /// of its mouth. Off, a plain silhouette and nothing else. On, the ghost and the rainbow turn to flowing liquid in the
-/// illustration's pastels (LiquidGhost) and sparkles show in its eyes.
+/// chrome of the Siri orb (LiquidGhost) and sparkles show in its eyes.
 ///
 /// Shapes are traced in the illustration's own pixel coordinates (y down) inside `box`, and mapped onto any rect.
 enum GhostArt {
@@ -101,10 +101,10 @@ enum GhostArt {
         let ghost = ghostPath(in: r)
         let k = r.height / 100
 
-        // A violet aura while lit.
+        // A cool silver aura while lit.
         if level > 0 && detail {
             ctx.saveGState()
-            ctx.setShadow(offset: .zero, blur: 16 * k, color: CGColor(srgbRed: 0.5, green: 0.42, blue: 1, alpha: 0.85 * level))
+            ctx.setShadow(offset: .zero, blur: 16 * k, color: CGColor(srgbRed: 0.72, green: 0.80, blue: 1, alpha: 0.75 * level))
             ctx.addPath(ghost)
             ctx.setFillColor(CGColor(srgbRed: 0.8, green: 0.84, blue: 0.95, alpha: 1))
             ctx.fillPath()
@@ -125,7 +125,7 @@ enum GhostArt {
         // A thin rim keeps the small icon readable on a light menu bar.
         if !detail {
             ctx.addPath(ghost)
-            ctx.setStrokeColor(CGColor(srgbRed: 0.35, green: 0.3, blue: 0.7, alpha: 0.9))
+            ctx.setStrokeColor(CGColor(srgbRed: 0.28, green: 0.30, blue: 0.36, alpha: 0.9))
             ctx.setLineWidth(0.7)
             ctx.strokePath()
         }
@@ -134,13 +134,13 @@ enum GhostArt {
 
         let eyes = eyeRects(in: r)
         guard detail else {
-            // Small: plain holes, a pink spark in each eye while lit.
+            // Small: plain holes, a silver spark in each eye while lit.
             ctx.setFillColor(CGColor(srgbRed: 0.07, green: 0.10, blue: 0.22, alpha: 1))
             for e in eyes { ctx.fillEllipse(in: e) }
             ctx.addPath(mouthPath(in: r))
             ctx.fillPath()
             if level > 0 {
-                ctx.setFillColor(CGColor(srgbRed: 1, green: 0.6, blue: 0.92, alpha: level))
+                ctx.setFillColor(CGColor(srgbRed: 0.86, green: 0.92, blue: 1, alpha: level))
                 for e in eyes { ctx.fillEllipse(in: e.insetBy(dx: e.width * 0.3, dy: e.height * 0.3)) }
             }
             return
@@ -159,7 +159,7 @@ enum GhostArt {
         [(0.30, 0.38, 0.19), (0.55, 0.80, 0.27), (0.80, 0.50, 0.13)],
     ]
 
-    /// The hole is shaded like the illustration's: dark teal at the top, lighter toward the bottom, and a pale crescent
+    /// The hole is shaded like the illustration's: dark silver at the top, lighter toward the bottom, and a pale crescent
     /// of inner wall along the lower right that gives it depth.
     private static func eye(_ ctx: CGContext, _ e: CGRect, mobile: [(x: CGFloat, length: CGFloat, size: CGFloat)], level: Double, t: Double) {
         let srgb = CGColorSpace(name: CGColorSpace.sRGB)
@@ -167,12 +167,12 @@ enum GhostArt {
         ctx.addEllipse(in: e)
         ctx.clip()
         // Inner wall first; the sky covers all of it but the crescent.
-        ctx.setFillColor(mix((0.20, 0.26, 0.36), (0.45, 0.66, 0.80), level))
+        ctx.setFillColor(mix((0.20, 0.26, 0.36), (0.52, 0.56, 0.64), level))
         ctx.fill(e)
         let sky = e.offsetBy(dx: -e.width * 0.13, dy: e.height * 0.06)
         ctx.addEllipse(in: sky)
         ctx.clip()
-        let colors = [mix((0.04, 0.06, 0.12), (0.05, 0.16, 0.22), level), mix((0.08, 0.10, 0.20), (0.20, 0.40, 0.55), level)] as CFArray
+        let colors = [mix((0.04, 0.06, 0.12), (0.05, 0.06, 0.08), level), mix((0.08, 0.10, 0.20), (0.24, 0.27, 0.33), level)] as CFArray
         if let g = CGGradient(colorsSpace: srgb, colors: colors, locations: nil) {
             ctx.drawLinearGradient(g, start: CGPoint(x: 0, y: e.maxY), end: CGPoint(x: 0, y: e.minY), options: [])
         }
@@ -183,7 +183,7 @@ enum GhostArt {
         func rnd() -> CGFloat { seed = seed &* 6364136223846793005 &+ 1442695040888963407; return CGFloat(seed >> 33) / CGFloat(1 << 31) }
         for _ in 0..<10 {
             let d = e.width * (0.025 + rnd() * 0.03)
-            ctx.setFillColor(CGColor(srgbRed: 0.6 + rnd() * 0.4, green: 0.8, blue: 0.9, alpha: 0.5 * level))
+            ctx.setFillColor(CGColor(srgbRed: 0.75 + rnd() * 0.25, green: 0.82, blue: 0.92, alpha: 0.5 * level))
             ctx.fillEllipse(in: CGRect(x: e.minX + rnd() * e.width, y: e.minY + rnd() * e.height, width: d, height: d))
         }
 
@@ -193,16 +193,16 @@ enum GhostArt {
             let swing = 0.09 * sin(t * (1.1 + 0.23 * Double(i)) + Double(i) * 1.7)
             let len = m.length * e.height
             let star = CGPoint(x: pivot.x + len * sin(swing), y: pivot.y - len * cos(swing))
-            ctx.setStrokeColor(CGColor(srgbRed: 1, green: 0.78, blue: 0.92, alpha: 0.75 * level))
+            ctx.setStrokeColor(CGColor(srgbRed: 0.88, green: 0.90, blue: 0.96, alpha: 0.75 * level))
             ctx.setLineWidth(max(0.35, e.width * 0.025))
             ctx.move(to: pivot)
             ctx.addLine(to: star)
             ctx.strokePath()
             let size = m.size * e.width * (0.92 + 0.08 * sin(t * 2.4 + Double(i)))
             ctx.saveGState()
-            ctx.setShadow(offset: .zero, blur: size * 0.8, color: CGColor(srgbRed: 1, green: 0.45, blue: 0.85, alpha: level))
-            sparkle(ctx, at: CGPoint(x: star.x, y: star.y - size), r: size, color: CGColor(srgbRed: 1, green: 0.58, blue: 0.84, alpha: level))
-            sparkle(ctx, at: CGPoint(x: star.x, y: star.y - size), r: size * 0.45, color: CGColor(srgbRed: 1, green: 0.86, blue: 0.95, alpha: level))
+            ctx.setShadow(offset: .zero, blur: size * 0.8, color: CGColor(srgbRed: 0.66, green: 0.78, blue: 1, alpha: level))
+            sparkle(ctx, at: CGPoint(x: star.x, y: star.y - size), r: size, color: CGColor(srgbRed: 0.84, green: 0.89, blue: 1, alpha: level))
+            sparkle(ctx, at: CGPoint(x: star.x, y: star.y - size), r: size * 0.45, color: CGColor(srgbRed: 1, green: 1, blue: 1, alpha: level))
             ctx.restoreGState()
         }
         ctx.restoreGState()
@@ -210,13 +210,13 @@ enum GhostArt {
 
     // MARK: - Mouth
 
-    /// A dark green-black hole with a little star dust; while lit, a drop of the liquid wobbles on its lower lip.
+    /// A dark graphite hole with a little star dust; while lit, a drop of the liquid wobbles on its lower lip.
     private static func mouth(_ ctx: CGContext, in r: CGRect, level: Double, t: Double) {
         let path = mouthPath(in: r)
         ctx.saveGState()
         ctx.addPath(path)
         ctx.clip()
-        ctx.setFillColor(mix((0.06, 0.08, 0.16), (0.03, 0.10, 0.10), level))
+        ctx.setFillColor(mix((0.06, 0.08, 0.16), (0.04, 0.05, 0.07), level))
         ctx.fill(r)
         if level > 0 {
             var seed: UInt64 = 9
@@ -224,7 +224,7 @@ enum GhostArt {
             let box = path.boundingBox
             for _ in 0..<14 {
                 let d = box.width * (0.02 + rnd() * 0.025)
-                ctx.setFillColor(CGColor(srgbRed: 0.4 + rnd() * 0.3, green: 0.85, blue: 0.5 + rnd() * 0.4, alpha: 0.6 * level))
+                ctx.setFillColor(CGColor(srgbRed: 0.6 + rnd() * 0.3, green: 0.72, blue: 0.82 + rnd() * 0.18, alpha: 0.6 * level))
                 ctx.fillEllipse(in: CGRect(x: box.minX + rnd() * box.width, y: box.minY + rnd() * box.height, width: d, height: d))
             }
         }
@@ -247,10 +247,10 @@ enum GhostArt {
     /// drop swells on the lower lip.
     private static func drips(_ ctx: CGContext, in r: CGRect, level: Double, t: Double) {
         let k = r.width / box.width
-        let teal = CGColor(srgbRed: 0.45, green: 0.95, blue: 0.88, alpha: level)
+        let silver = CGColor(srgbRed: 0.86, green: 0.90, blue: 0.97, alpha: level)
         ctx.saveGState()
         ctx.setLineCap(.round)
-        ctx.setStrokeColor(teal)
+        ctx.setStrokeColor(silver)
         for (i, (period, across)) in [(3.2, 0.91), (4.4, 0.87)].enumerated() {
             let phase = ((t + Double(i) * 1.6) / period).truncatingRemainder(dividingBy: 1)
             let head = 0.04 + 0.5 * phase * phase              // speeds up as it runs
@@ -270,7 +270,7 @@ enum GhostArt {
         // The drop on the lip.
         let swell = 0.8 + 0.2 * sin(t * 2.1)
         let lip = p(r, 1178, 798)
-        ctx.setFillColor(teal)
+        ctx.setFillColor(silver)
         ctx.fillEllipse(in: CGRect(x: lip.x - 24 * k, y: lip.y - 8 * k * swell, width: 46 * k, height: 15 * k * swell))
         ctx.restoreGState()
     }

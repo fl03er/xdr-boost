@@ -2,12 +2,12 @@ import AppKit
 import Metal
 
 /// The ghost's lit look: the liquid-metal shader from paper-design/liquid-logo (https://github.com/paper-design/liquid-logo,
-/// PolyForm Shield 1.0.0, https://polyformproject.org/licenses/shield/1.0.0), ported to Metal and recoloured with the
-/// ghost illustration's pastels. As there, the shape comes in as a bevelled mask (a Poisson solve inside the shape),
+/// PolyForm Shield 1.0.0, https://polyformproject.org/licenses/shield/1.0.0), ported to Metal and recoloured as chrome
+/// with a faint iridescent sheen (after the Siri orb). As there, the shape comes in as a bevelled mask (a Poisson solve inside the shape),
 /// and stripes flow across it with a small per-channel refraction offset.
 ///
 /// Two masks share one texture: R is the whole ghost, G is the rainbow pouring out of its mouth, and B is how far across
-/// the stream each point is. The ghost gets pale, mostly white stripes; the stream gets the palette in lengthwise bands.
+/// the stream each point is. The ghost gets pale, mostly white stripes; the stream gets silver-to-ice-blue bands lengthwise.
 final class LiquidGhost {
     static let shared = LiquidGhost()
 
@@ -325,9 +325,9 @@ final class LiquidGhost {
         return float4(r, g, b, opacity);
     }
 
-    // The illustration's pastels, cycling: pink, peach, aqua, sky blue, violet.
+    // Chrome with a faint iridescent sheen, like the Siri orb: silver, ice blue, white, blush, pale gold.
     float3 palette(float x) {
-        const float3 c[5] = { float3(1., .44, .80), float3(1., .62, .55), float3(.36, .92, .84), float3(.36, .64, 1.), float3(.62, .48, 1.) };
+        const float3 c[5] = { float3(.84, .86, .90), float3(.62, .76, 1.), float3(.98, .98, 1.), float3(.94, .74, .88), float3(.98, .90, .72) };
         x = wrap(x) * 5.;
         int i = int(x);
         return mix(c[i % 5], c[(i + 1) % 5], smoothstep(0., 1., fract(x)));
@@ -345,26 +345,26 @@ final class LiquidGhost {
         float4 ghost = liquid(img.r, uv, t, noise, u, ghostPhase);
         float4 stream = liquid(img.g, uv, t + .37, noise, u, streamPhase);
 
-        // The ghost: white light stripes with a faint tint, dusky violet dark ones.
+        // The ghost: polished chrome, white light stripes and graphite dark ones, each with a faint iridescent tint.
         float3 tint = palette(ghostPhase * .5 + uv.y * .4);
-        float3 ghostColor = mix(mix(float3(.40, .43, .74), tint, .35 + .35 * u.textMode), mix(float3(.97, .97, 1.), tint, .14 + .45 * u.textMode), ghost.rgb);
-        // The stream, as in the illustration: pink on the left through lavender to aqua, then a dark side on the
-        // right. Ripples run down it, so it reads as pouring out of the mouth.
+        float3 ghostColor = mix(mix(float3(.17, .18, .21), tint, .16 + .45 * u.textMode), mix(float3(.97, .97, 1.), tint, .14 + .45 * u.textMode), ghost.rgb);
+        // The stream, in chrome: bright silver on the left through ice blue to a blush of pink, then a dark graphite
+        // side on the right. Ripples run down it, so it reads as pouring out of the mouth.
         float flow = u.time / .3;   // back to seconds
         float across = img.b + .07 * sin(in.uv.y * 18. - flow * 4.) + .03 * sin(in.uv.y * 41. - flow * 7. + 1.3);
         float along = in.uv.y + .05 * sin(flow * .8);
-        float3 hue = mix(float3(1., .42, .82), float3(.66, .62, 1.), smoothstep(.05, .38, across));
-        hue = mix(hue, float3(.38, .92, .86), smoothstep(.38, .66, across));
-        hue = mix(hue, float3(.46, .80, 1.), .35 * smoothstep(.75, .4, along) * smoothstep(.3, .6, across));
-        float3 streamColor = mix(hue * .72, mix(hue, float3(1.), .22), stream.rgb);
-        streamColor = mix(streamColor, float3(.07, .22, .24), smoothstep(.76, .82, across));
+        float3 hue = mix(float3(.92, .93, .96), float3(.62, .76, 1.), smoothstep(.05, .38, across));
+        hue = mix(hue, float3(.92, .76, .88), smoothstep(.38, .66, across));
+        hue = mix(hue, float3(.98, .90, .74), .35 * smoothstep(.75, .4, along) * smoothstep(.3, .6, across));
+        float3 streamColor = mix(hue * .42, mix(hue, float3(1.), .30), stream.rgb);
+        streamColor = mix(streamColor, float3(.09, .10, .12), smoothstep(.76, .82, across));
 
         float3 color = mix(ghostColor, streamColor, stream.a);
         // Print grain.
         float grain = fract(sin(dot(floor(in.position.xy), float2(12.9898, 78.233))) * 43758.5453) - .5;
         color += grain * .06;
         // Text keeps its own glyph coverage as opacity, and lifts the dark stripes so thin strokes stay legible.
-        color = mix(color, mix(color, float3(.8, .82, 1.), .15), u.textMode);
+        color = mix(color, mix(color, float3(.86, .87, .92), .15), u.textMode);
         float alpha = mix(ghost.a, img.a, u.textMode);
         return float4(color * alpha, alpha);
     }
