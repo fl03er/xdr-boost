@@ -101,7 +101,7 @@ final class Booster {
         overlay = EDROverlay(screen: screen)
         overlay?.show()
         appliedFactor = 1.0
-        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in self?.apply(force: false) }
+        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in self?.apply(force: false) }
         apply(force: true)
     }
 
@@ -116,19 +116,33 @@ final class Booster {
 
     // MARK: - Boost
 
-    /// Applies min(factor, headroom). Runs on a timer: headroom follows ambient light and the brightness setting.
+    /// Applies min(factor, headroom), smoothed. Runs on a timer: headroom follows ambient light, temperature and the
+    /// brightness setting, and tracking it raw made the screen pulse. So: ignore small headroom wobble (deadband),
+    /// ease upward slowly, come down quickly (staying above the headroom would clip channels and shift hues).
+    /// `force` (slider moved, start) snaps straight to the goal.
+    private var goal: Double = 1.0
+
     private func apply(force: Bool) {
         guard state == .on || force, display != nil else { return }
         let headroom = self.headroom
-        let target = max(1.0, min(factor, headroom))
-        let changed = abs(target - appliedFactor) > 0.01
-        overlay?.value = Self.encodedScale(target)
-        appliedFactor = target
+        let raw = max(1.0, min(factor, headroom))
+        let tooHigh = appliedFactor > headroom + 0.001   // must come down regardless of the deadband
+        if force || tooHigh || abs(raw - goal) > 0.08 || raw == factor { goal = raw }
+
+        var next = appliedFactor
+        if force && state == .on && appliedFactor > 1.0 { next = goal }
+        else if goal > next { next = min(goal, next + 0.03) }        // ~0.3 / s up
+        else if goal < next { next = max(goal, next - 0.12) }        // ~1.2 / s down
+        if force && appliedFactor <= 1.0 { next = min(goal, 1.0 + 0.03) }
+
+        let changed = abs(next - appliedFactor) > 0.005
+        guard changed || force else { return }
+        overlay?.value = Self.encodedScale(next)
+        appliedFactor = next
         if changed { onChange?() }
         if debug {
-            FileHandle.standardError.write(String(format: "[xdr] headroom %.2f / potential %.2f  factor %.2f  applied %.2f (scale %.3f)\n",
-                                                  headroom, potentialHeadroom, factor, appliedFactor,
-                                                  Self.encodedScale(appliedFactor)).data(using: .utf8)!)
+            FileHandle.standardError.write(String(format: "[xdr] headroom %.2f / potential %.2f  factor %.2f  goal %.2f  applied %.2f\n",
+                                                  headroom, potentialHeadroom, factor, goal, appliedFactor).data(using: .utf8)!)
         }
     }
 
